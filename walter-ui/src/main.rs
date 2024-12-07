@@ -14,7 +14,7 @@ mod app;
 mod ui;
 mod utils;
 
-use utils::{StoreCommand, StoreDetails, WalrusCommand, WalrusResponse};
+use utils::{StoreCommand, StoreDetails, WalrusCommand, WalrusResponse, run_walrus};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -150,50 +150,3 @@ async fn main() -> Result<(), Box<dyn Error>> {
 //         }
 //     }
 // }
-
-async fn run_walrus(json_data: String) -> Result<String, Box<dyn Error>> {
-    let mut child = Command::new("walrus")
-        .arg("json")
-        .stdin(Stdio::piped())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::null())
-        .spawn()
-        .map_err(|e| format!("Failed to start process: {}", e))?;
-
-    if let Some(mut stdin) = child.stdin.take() {
-        stdin
-            .write_all(json_data.as_bytes())
-            .map_err(|e| format!("Failed to write to stdin: {}", e))?;
-    }
-
-    let output = child
-        .wait_with_output()
-        .map_err(|e| format!("Failed to wait on process: {}", e))?;
-
-    // Check for errors
-    if !output.status.success() {
-        let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-        return Err(format!("Process failed: {}", stderr).into());
-    }
-
-    let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-    let response: WalrusResponse = serde_json::from_str(&stdout)?;
-
-    let output_json = if let Some(newly_created) = response.newly_created {
-        json!({
-            "blobId": newly_created.blob_object.blob_id,
-            "size": newly_created.blob_object.size,
-            "objectId": newly_created.blob_object.id,
-            "registeredEpoch": newly_created.blob_object.registered_epoch
-        })
-    } else if let Some(already_certified) = response.already_certified {
-        json!({
-            "blobId": already_certified.blob_id,
-            "endEpoch": already_certified.end_epoch
-        })
-    } else {
-        return Err("Unexpected response from Walrus".into());
-    };
-
-    Ok(output_json.to_string())
-}
