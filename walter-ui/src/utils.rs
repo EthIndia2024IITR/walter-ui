@@ -185,7 +185,7 @@ pub async fn sui_active_env() -> Result<String, Box<dyn Error>> {
 }
 
 
-pub async fn run_walrus(json_data: String) -> Result<String, Box<dyn Error>> {
+pub async fn walrus_upload(json_data: String) -> Result<String, Box<dyn Error>> {
     let mut child = Command::new("walrus")
         .arg("json")
         .stdin(Stdio::piped())
@@ -313,5 +313,4 @@ pub async fn walrus_info_system() -> Result<String, Box<dyn Error>> {
     
     Ok(stdout.to_string())
 }
-
 

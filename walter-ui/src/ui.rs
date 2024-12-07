@@ -33,18 +33,39 @@ pub fn render_ui(frame: &mut Frame, app: &mut App) {
         CurrentScreen::Splash => render_splash_screen(frame, app, chunks[1]),
         CurrentScreen::Dashboard => {
             frame.render_widget(
-                Paragraph::new("").block(Block::bordered().title("~ [ Dashboard ] ~").title_alignment(Alignment::Center)),
+                Paragraph::new("").block(
+                    Block::bordered()
+                        .title("~ [ Dashboard ] ~")
+                        .title_alignment(Alignment::Center),
+                ),
                 frame.area(),
             );
             render_dashboard(frame, app, chunks[1])
         }
-        CurrentScreen::Updater => {
+        CurrentScreen::Uploader => {
             frame.render_widget(
-                Paragraph::new("").block(Block::bordered().title("~ [ Updater ] ~").title_alignment(Alignment::Center)),
+                Paragraph::new("").block(
+                    Block::bordered()
+                        .title("~ [ Uploader ] ~")
+                        .title_alignment(Alignment::Center),
+                ),
                 frame.area(),
             );
-            render_updater(frame, app, chunks[1])
+            render_uploader(frame, app, chunks[1]);
         }
+        CurrentScreen::Migrator => {
+            frame.render_widget(
+                Paragraph::new("").block(
+                    Block::bordered()
+                        .title("~ [ Migrate from IPFS ] ~")
+                        .title_alignment(Alignment::Center),
+                ),
+                frame.area(),
+            );
+
+            render_migrator(frame, app, chunks[1]);
+        }
+        _ => {}
     }
 
     if app.should_quit {
@@ -100,7 +121,11 @@ fn render_splash_screen(frame: &mut Frame, app: &mut App, area: Rect) {
     .block(instructions_block)
     .alignment(Alignment::Left)
     .style(Style::default().fg(Color::Cyan))
-    .block(Block::default().borders(Borders::ALL).border_type(BorderType::Rounded));
+    .block(
+        Block::default()
+            .borders(Borders::ALL)
+            .border_type(BorderType::Rounded),
+    );
 
     frame.render_widget(title, chunks[1]);
     frame.render_widget(instructions, center[1]);
@@ -167,7 +192,10 @@ fn render_user_blobs(frame: &mut Frame, app: &mut App, area: Rect) {
         .highlight_spacing(HighlightSpacing::Always);
 
         let title = Text::styled(
-            format!("~ [ Uploads by user {} ] ~", truncate(&app.sui_active_address)),
+            format!(
+                "~ [ Uploads by user {} ] ~",
+                truncate(&app.sui_active_address)
+            ),
             Style::default()
                 .fg(Color::White)
                 .add_modifier(Modifier::BOLD),
@@ -176,20 +204,15 @@ fn render_user_blobs(frame: &mut Frame, app: &mut App, area: Rect) {
             .style(Style::default().fg(Color::Green))
             .alignment(Alignment::Center);
 
-
         let bottom_left = Layout::default()
             .direction(Direction::Horizontal)
             .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
             .split(chunks[1]);
-        
-        let system_info = Text::styled(
-            &app.walrus_system_info,
-            Style::default().fg(Color::Yellow),
-        );
+
+        let system_info = Text::styled(&app.walrus_system_info, Style::default().fg(Color::Yellow));
         let system_info = Paragraph::new(system_info)
             .style(Style::default().fg(Color::Green))
             .alignment(Alignment::Left);
-
 
         frame.render_widget(system_info, bottom_left[0]);
         frame.render_stateful_widget(table, chunks[0], &mut app.table_state);
@@ -233,24 +256,69 @@ fn render_updater(frame: &mut Frame, app: &mut App, area: Rect) {
         .constraints([Constraint::Percentage(90), Constraint::Percentage(10)])
         .split(area);
 
-    let title = Text::styled(
-        "~ [ Updater ] ~",
-        Style::default()
-            .fg(Color::White)
-            .add_modifier(Modifier::BOLD),
-    );
-    let title = Paragraph::new(title)
-        .style(Style::default().fg(Color::Green))
-        .alignment(Alignment::Center);
+    render_footer(frame, app, chunks[1]);
+}
 
-    let text = Text::styled(
-        "This feature is not yet implemented.",
-        Style::default().fg(Color::Yellow),
-    );
-    let paragraph = Paragraph::new(text).alignment(Alignment::Center);
+fn render_uploader(frame: &mut Frame, app: &mut App, area: Rect) {
+    let chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([Constraint::Percentage(90), Constraint::Percentage(10)])
+        .split(area);
 
-    frame.render_widget(paragraph, chunks[0]);
-    frame.render_widget(title, chunks[0]);
+    let screen = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
+        .split(chunks[0]);
+
+    let left = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([
+            Constraint::Percentage(10),
+            Constraint::Percentage(40),
+            Constraint::Percentage(50),
+        ])
+        .split(screen[0]);
+
+    let filename = Text::from(
+        Line::from(format!("File path: {}", app.filename.clone()))
+            .style(Style::default().fg(Color::White)).alignment(Alignment::Center),
+    );
+
+    frame.render_widget(filename, left[1]);
+
+    let file_exists = std::path::Path::new(&app.filename).exists();
+    if file_exists && !app.filename.is_empty() && !app.is_editing {
+        let info = Text::from(Line::from("File exists").style(Style::default().fg(Color::Green)));
+        frame.render_widget(info, left[1]);
+    } else {
+        let info =
+            Text::from(Line::from("File does not exist").style(Style::default().fg(Color::Red)));
+        frame.render_widget(info, left[1]);
+    };
+
+    render_footer(frame, app, chunks[1]);
+}
+
+fn render_migrator(frame: &mut Frame, app: &mut App, area: Rect) {
+    let chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([Constraint::Percentage(90), Constraint::Percentage(10)])
+        .split(area);
+
+    let screen = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([Constraint::Percentage(90), Constraint::Percentage(10)])
+        .split(chunks[0]);
+
+    let text_field = Text::from(
+        Line::from(format!(
+            "Enter Pinata API Key: {}",
+            app.pinata_api_key.clone()
+        ))
+        .style(Style::default().fg(Color::White)).alignment(Alignment::Center),
+    );
+
+    frame.render_widget(text_field, screen[0]);
     render_footer(frame, app, chunks[1]);
 }
 
@@ -286,7 +354,9 @@ fn render_footer(frame: &mut Frame, app: &mut App, area: Rect) {
 
     match app.current_screen {
         CurrentScreen::Splash => content = "Press 'Enter' to continue",
-        CurrentScreen::Dashboard => content = "[1] Dashboard [2] Updater | [D]ownload a File | [U]pload | [Q]uit",
+        CurrentScreen::Dashboard => content = "[2] Updater | [3] Uploader | [Q]uit",
+        CurrentScreen::Uploader => content = "[1] Dashboard | [2] Updater | [Enter] Upload | [Q]uit",
+        CurrentScreen::Migrator => content = "[1] Dashboard | [2] Uploader | [M]igrate | [Q]uit",
         _ => {}
     }
 
