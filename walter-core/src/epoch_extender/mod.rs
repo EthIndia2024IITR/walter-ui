@@ -1,8 +1,6 @@
-use ::serde_json::Value;
-use reqwest::{Error, Result};
-use serde::{Deserialize, Serialize};
 mod types;
 use types::*;
+use reqwest::*;
 
 /// Fetches blob entries from Walruscan API
 ///
