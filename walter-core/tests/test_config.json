@@ -1,19 +1,6 @@
 {
     "default_file_download_dir": "/home/phoenix/.walter",
     "default_epochs": 10,
-    "default_shard_size": 1048576,
-    "files": {
-        "test_sharder.txt": {
-            "is_encrypted": false,
-            "blobs": [
-                "blob1"
-            ]
-        },
-        "test_sharder2.txt": {
-            "is_encrypted": false,
-            "blobs": [
-                "blob2"
-            ]
-        }
-    }
+    "default_shard_size": 10,
+    "files": {}
 }

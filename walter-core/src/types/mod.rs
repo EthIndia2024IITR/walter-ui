@@ -1,80 +1,83 @@
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 #[allow(non_snake_case)]
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Deserialize, Debug)]
+pub struct Event {
+    pub txDigest: String,
+    pub eventSeq: String,
+}
+
+#[allow(non_snake_case)]
+#[derive(Deserialize, Debug)]
+pub struct EventOrObject {
+    pub Event: Event,
+}
+
+#[allow(non_snake_case)]
+#[derive(Deserialize, Debug)]
 pub struct AlreadyCertified {
     pub blobId: String,
-    pub endEpoch: u32,
     pub eventOrObject: EventOrObject,
+    pub endEpoch: u32,
 }
-
-#[derive(Debug, Serialize, Deserialize)]
-pub enum EventOrObject {
-    Event,
-    Object,
-}
-
+// Define a struct matching the JSON structure
 #[allow(non_snake_case)]
-#[derive(Debug, Serialize, Deserialize)]
-pub struct NewlyCreated {
-    pub blobObject: BlobObject,
-    pub cost: u64,
-}
-
-#[allow(non_snake_case)]
-#[derive(Debug, Serialize, Deserialize)]
-pub struct BlobObject {
-    pub blobId: String,
-    pub certifiedEpoch: u32,
-    pub deletable: bool,
-    pub encodingType: String,
+#[derive(Deserialize, Debug)]
+pub struct Storage {
     pub id: String,
-    pub registeredEpoch: u32,
-    pub size: u64,
-}
-
-#[allow(non_snake_case)]
-#[derive(Debug, Serialize, Deserialize)]
-pub struct BlobResponse {
-    pub content: Vec<BlobEntry>,
-    pub pageable: Pageable,
-    pub totalPages: u32,
-    pub totalElements: u32,
-    pub last: bool,
-    pub size: u32,
-    pub number: u32,
-    pub sort: Sort,
-    pub numberOfElements: u32,
-    pub first: bool,
-    pub empty: bool,
-}
-
-#[allow(non_snake_case)]
-#[derive(Debug, Serialize, Deserialize)]
-pub struct BlobEntry {
-    pub blobId: String,
-    pub blobIdBase64: String,
-    pub objectId: String,
     pub startEpoch: u32,
     pub endEpoch: u32,
-    pub size: u64,
-    pub timestamp: u64,
+    pub storageSize: u64,
 }
 
 #[allow(non_snake_case)]
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Pageable {
-    pub pageNumber: u32,
-    pub pageSize: u32,
-    pub sort: Sort,
-    pub offset: u32,
-    pub paged: bool,
-    pub unpaged: bool,
+#[derive(Deserialize, Debug)]
+pub struct BlobObject {
+    pub id: String,
+    pub registeredEpoch: u32,
+    pub blobId: String,
+    pub size: u32,
+    pub encodingType: String,
+    pub certifiedEpoch: u32,
+    pub storage: Storage,
+    pub deletable: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Sort {
-    pub sorted: bool,
-    pub empty: bool,
-    pub unsorted: bool,
+#[allow(non_snake_case)]
+#[derive(Deserialize, Debug)]
+pub struct ResourceOperation {
+    RegisterFromScratch: RegisterFromScratch,
+}
+
+#[allow(non_snake_case)]
+#[derive(Deserialize, Debug)]
+pub struct RegisterFromScratch {
+    encoded_length: u64,
+    epochs_ahead: u32,
+}
+
+#[allow(non_snake_case)]
+#[derive(Deserialize, Debug)]
+pub struct NewlyCreated {
+    pub blobObject: BlobObject,
+    pub resourceOperation: ResourceOperation,
+    pub cost: u32,
+}
+
+#[allow(non_snake_case)]
+#[derive(Deserialize, Debug)]
+pub struct WalrusNewlyCreated {
+    pub newlyCreated: NewlyCreated,
+}
+
+#[allow(non_snake_case)]
+#[derive(Deserialize, Debug)]
+pub struct WalrusAlreadyCertified {
+    pub alreadyCertified: AlreadyCertified,
+}
+
+#[derive(Deserialize, Debug)]
+pub enum WalrusResponse {
+    NewlyCreated(WalrusNewlyCreated),
+    AlreadyCertified(WalrusAlreadyCertified),
 }
