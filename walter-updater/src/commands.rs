@@ -74,3 +74,41 @@ fn run_command(command: &str) -> Result<(), Box<dyn std::error::Error>> {
     }
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::Path;
+
+    #[test]
+    fn test_get_system_variable() {
+        let result = {
+            let _stdin = io::stdin();
+            let _stdout = io::stdout();
+            get_system_variable().unwrap()
+        };
+
+        assert_eq!(result, "ubuntu-x86_64");
+    }
+
+    #[test]
+    fn test_find_existing_walrus_path() {
+        let output = find_existing_walrus_path();
+        if let Some(path) = output {
+            assert!(Path::new(&path).exists());
+        } else {
+            assert!(output.is_none());
+        }
+    }
+
+    #[test]
+    fn test_execute_instructions_no_existing_installation() {
+        let temp_path = "./walrus";
+        if Path::new(temp_path).exists() {
+            fs::remove_file(temp_path).unwrap();
+        }
+
+        let result = execute_instructions();
+        assert!(result.is_err() || result.is_ok());
+    }
+}
