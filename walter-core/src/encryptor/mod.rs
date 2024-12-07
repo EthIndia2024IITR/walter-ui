@@ -1,6 +1,7 @@
 use openssl::pkcs5::pbkdf2_hmac;
 use openssl::symm::{decrypt, encrypt, Cipher};
 use rand::Rng;
+use std::error::Error;
 use std::fs::File;
 use std::io::{Read, Write};
 
@@ -13,7 +14,7 @@ pub fn encrypt_file(
     input_file: &str,
     output_file: &str,
     password: &str,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<(), Box<dyn Error>> {
     // Read input file contents
     let mut file = File::open(input_file)?;
     let mut plaintext = Vec::new();
@@ -50,7 +51,6 @@ pub fn encrypt_file(
     let mut out_file = File::create(output_file)?;
     out_file.write_all(&output)?;
 
-    println!("File encrypted successfully.");
     Ok(())
 }
 
@@ -58,7 +58,7 @@ pub fn decrypt_file(
     input_file: &str,
     output_file: &str,
     password: &str,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<(), Box<dyn Error>> {
     let mut file = File::open(input_file)?;
     let mut data = Vec::new();
     file.read_to_end(&mut data)?;
@@ -81,7 +81,6 @@ pub fn decrypt_file(
     let mut out_file = File::create(output_file)?;
     out_file.write_all(&plaintext)?;
 
-    println!("File decrypted successfully.");
     Ok(())
 }
 

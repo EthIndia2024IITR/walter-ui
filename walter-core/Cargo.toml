@@ -4,7 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+failure = "0.1.8"
 openssl = "0.10.68"
+pinata-sdk = "1.1.0"
 rand = "0.8.5"
 reqwest = { version = "0.12.9", features = ["json", "rustls-tls"] }
 serde = { version = "1.0.215", features = ["derive"] }

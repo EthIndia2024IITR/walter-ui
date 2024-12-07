@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+#[allow(non_snake_case)]
 #[derive(Debug, Serialize, Deserialize)]
-
 pub struct AlreadyCertified {
     pub blobId: String,
     pub endEpoch: u32,
@@ -14,6 +14,26 @@ pub enum EventOrObject {
     Object,
 }
 
+#[allow(non_snake_case)]
+#[derive(Debug, Serialize, Deserialize)]
+pub struct NewlyCreated {
+    pub blobObject: BlobObject,
+    pub cost: u64,
+}
+
+#[allow(non_snake_case)]
+#[derive(Debug, Serialize, Deserialize)]
+pub struct BlobObject {
+    pub blobId: String,
+    pub certifiedEpoch: u32,
+    pub deletable: bool,
+    pub encodingType: String,
+    pub id: String,
+    pub registeredEpoch: u32,
+    pub size: u64,
+}
+
+#[allow(non_snake_case)]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct BlobResponse {
     pub content: Vec<BlobEntry>,
@@ -29,6 +49,7 @@ pub struct BlobResponse {
     pub empty: bool,
 }
 
+#[allow(non_snake_case)]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct BlobEntry {
     pub blobId: String,
@@ -40,6 +61,7 @@ pub struct BlobEntry {
     pub timestamp: u64,
 }
 
+#[allow(non_snake_case)]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Pageable {
     pub pageNumber: u32,

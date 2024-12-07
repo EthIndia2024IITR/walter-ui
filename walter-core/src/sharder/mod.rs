@@ -28,6 +28,10 @@ impl Sharder {
             total_shards,
         })
     }
+
+    pub fn get_shard(&self) -> &Vec<u8> {
+        &self.current_shard
+    }
 }
 
 impl Iterator for Sharder {
