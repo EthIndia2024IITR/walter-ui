@@ -38,7 +38,13 @@ pub fn render_ui(frame: &mut Frame, app: &mut App) {
             );
             render_dashboard(frame, app, chunks[1])
         }
-        _ => {}
+        CurrentScreen::Updater => {
+            frame.render_widget(
+                Paragraph::new("").block(Block::bordered().title("~ [ Updater ] ~").title_alignment(Alignment::Center)),
+                frame.area(),
+            );
+            render_updater(frame, app, chunks[1])
+        }
     }
 
     if app.should_quit {
@@ -214,10 +220,37 @@ fn render_scrollbar(frame: &mut Frame, app: &mut App, area: Rect) {
 fn render_dashboard(frame: &mut Frame, app: &mut App, area: Rect) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
-        .constraints([Constraint::Percentage(95), Constraint::Percentage(5)])
+        .constraints([Constraint::Percentage(90), Constraint::Percentage(10)])
         .split(area);
 
     render_user_blobs(frame, app, chunks[0]);
+    render_footer(frame, app, chunks[1]);
+}
+
+fn render_updater(frame: &mut Frame, app: &mut App, area: Rect) {
+    let chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([Constraint::Percentage(90), Constraint::Percentage(10)])
+        .split(area);
+
+    let title = Text::styled(
+        "~ [ Updater ] ~",
+        Style::default()
+            .fg(Color::White)
+            .add_modifier(Modifier::BOLD),
+    );
+    let title = Paragraph::new(title)
+        .style(Style::default().fg(Color::Green))
+        .alignment(Alignment::Center);
+
+    let text = Text::styled(
+        "This feature is not yet implemented.",
+        Style::default().fg(Color::Yellow),
+    );
+    let paragraph = Paragraph::new(text).alignment(Alignment::Center);
+
+    frame.render_widget(paragraph, chunks[0]);
+    frame.render_widget(title, chunks[0]);
     render_footer(frame, app, chunks[1]);
 }
 
@@ -253,7 +286,7 @@ fn render_footer(frame: &mut Frame, app: &mut App, area: Rect) {
 
     match app.current_screen {
         CurrentScreen::Splash => content = "Press 'Enter' to continue",
-        CurrentScreen::Dashboard => content = "[Q]uit | [D]ownload a File | [U]pload a File (soon)",
+        CurrentScreen::Dashboard => content = "[1] Dashboard [2] Updater | [D]ownload a File | [U]pload | [Q]uit",
         _ => {}
     }
 

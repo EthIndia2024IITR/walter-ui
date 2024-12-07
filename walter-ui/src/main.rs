@@ -67,22 +67,32 @@ async fn run_app(
         terminal.draw(|frame| render_ui(frame, app))?;
 
         if let Event::Key(key) = event::read()? {
-            if key.kind == event::KeyEventKind::Release {
-                continue;
-            }
-
-            if !app.should_quit {
-                match key.code {
-                    KeyCode::Char('q') => app.should_quit = true,
-                    _ => {}
+            if key.kind == event::KeyEventKind::Press {
+                if key.code == KeyCode::Esc {
+                    app.should_quit = true;
                 }
-            }
 
-            if app.should_quit {
-                match key.code {
-                    KeyCode::Char('y') => return Ok(true),
-                    KeyCode::Char('n') => app.should_quit = false,
-                    _ => {}
+                if !app.should_quit {
+                    match key.code {
+                        KeyCode::Char('q') => app.should_quit = true,
+                        _ => {}
+                    }
+                }
+    
+                if app.should_quit {
+                    match key.code {
+                        KeyCode::Char('y') => return Ok(true),
+                        KeyCode::Char('n') => app.should_quit = false,
+                        _ => {}
+                    }
+                }
+
+                if key.code == KeyCode::Char('1') {
+                    app.current_screen = CurrentScreen::Dashboard;
+                }
+
+                if key.code == KeyCode::Char('2') {
+                    app.current_screen = CurrentScreen::Updater;
                 }
             }
 
@@ -106,7 +116,15 @@ async fn run_app(
                     }
                     _ => {}
                 },
-                CurrentScreen::Updater => todo!(),
+                CurrentScreen::Updater => match key.code {
+                    // KeyCode::Enter => {
+                    //     let mut file = BufWriter::new(File::create("walrus.json")?);
+                    //     let walrus_system_info = utils::walrus_info_system().await?;
+                    //     file.write_all(walrus_system_info.as_bytes())?;
+                    //     app.should_quit = true;
+                    // }
+                    _ => {}
+                },
             }
         }
     }
