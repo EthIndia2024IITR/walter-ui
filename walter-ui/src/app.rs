@@ -6,7 +6,7 @@ use crate::utils::BlobInfo;
 pub enum CurrentScreen {
     Splash,
     Dashboard,
-    Update,
+    Updater,
 }
 
 pub struct App {
@@ -17,6 +17,7 @@ pub struct App {
     pub table_state: TableState,
     pub scrollbar_state: ScrollbarState,
     pub user_blobs: Vec<BlobInfo>,
+    pub walrus_system_info: String,
 }
 
 impl App {
@@ -29,6 +30,7 @@ impl App {
             scrollbar_state: ScrollbarState::new(0),
             sui_active_address: String::new(),
             sui_active_env: String::new(),
+            walrus_system_info: String::new(),
         }
     }
     pub fn next_row(&mut self) {
