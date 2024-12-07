@@ -1,0 +1,17 @@
+{
+    "files": {
+        "test_sharder.txt": {
+            "isEncrypted": false,
+            "blobs": [
+                "blob1"
+            ]
+        },
+        "test_sharder2.txt": {
+            "isEncrypted": false,
+            "blobs": [
+                "blob2"
+            ]
+        }
+    }
+    
+}
