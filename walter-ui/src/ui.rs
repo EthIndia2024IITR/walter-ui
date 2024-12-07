@@ -1,3 +1,5 @@
+use std::fmt::format;
+
 use ratatui::{
     layout::{Alignment, Constraint, Direction, Layout, Margin, Rect},
     style::{Color, Modifier, Style, Stylize},
@@ -29,7 +31,13 @@ pub fn render_ui(frame: &mut Frame, app: &mut App) {
 
     match app.current_screen {
         CurrentScreen::Splash => render_splash_screen(frame, app, chunks[1]),
-        CurrentScreen::Dashboard => render_dashboard(frame, app, chunks[1]),
+        CurrentScreen::Dashboard => {
+            frame.render_widget(
+                Paragraph::new("").block(Block::bordered().title("~ [ Dashboard ] ~").title_alignment(Alignment::Center)),
+                frame.area(),
+            );
+            render_dashboard(frame, app, chunks[1])
+        }
         _ => {}
     }
 
@@ -66,13 +74,17 @@ fn render_splash_screen(frame: &mut Frame, app: &mut App, area: Rect) {
 
     let instructions_block = Block::default().style(Style::default());
 
-    let center= Layout::default()
+    let center = Layout::default()
         .direction(Direction::Horizontal)
-        .constraints([Constraint::Percentage(25), Constraint::Percentage(50), Constraint::Percentage(25)])
+        .constraints([
+            Constraint::Percentage(10),
+            Constraint::Percentage(80),
+            Constraint::Percentage(10),
+        ])
         .split(chunks[2]);
 
     let loaded_details = format!(
-        "Active Sui Account \t{}\nActive Sui Env \t{}\nPress [ENTER] to continue",
+        "Active Sui Account \t{}\nActive Sui Env \t{}",
         app.sui_active_address, app.sui_active_env
     );
     let instructions = Paragraph::new(Text::styled(
@@ -80,7 +92,9 @@ fn render_splash_screen(frame: &mut Frame, app: &mut App, area: Rect) {
         Style::default().fg(Color::Yellow),
     ))
     .block(instructions_block)
-    .alignment(Alignment::Left);
+    .alignment(Alignment::Left)
+    .style(Style::default().fg(Color::Cyan))
+    .block(Block::default().borders(Borders::ALL).border_type(BorderType::Rounded));
 
     frame.render_widget(title, chunks[1]);
     frame.render_widget(instructions, center[1]);
@@ -93,7 +107,7 @@ fn render_user_blobs(frame: &mut Frame, app: &mut App, area: Rect) {
         .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
         .split(area);
 
-    let header_style = Style::default().fg(Color::LightGreen).bg(Color::DarkGray);
+    let header_style = Style::default().fg(Color::LightGreen);
     let selected_style = Style::default().fg(Color::DarkGray).bg(Color::Yellow);
 
     if !app.user_blobs.is_empty() {
@@ -122,7 +136,7 @@ fn render_user_blobs(frame: &mut Frame, app: &mut App, area: Rect) {
             item.into_iter()
                 .map(|content| Cell::from(Text::from(format!("{}", truncate(content)))))
                 .collect::<Row>()
-                .style(Style::new().fg(Color::Yellow).bg(Color::DarkGray))
+                .style(Style::new().fg(Color::Yellow))
                 .height(1)
         });
 
@@ -147,7 +161,7 @@ fn render_user_blobs(frame: &mut Frame, app: &mut App, area: Rect) {
         .highlight_spacing(HighlightSpacing::Always);
 
         let title = Text::styled(
-            "~ [Dashboard] ~",
+            format!("~ [ Uploads by user {} ] ~", truncate(&app.sui_active_address)),
             Style::default()
                 .fg(Color::White)
                 .add_modifier(Modifier::BOLD),
@@ -156,8 +170,24 @@ fn render_user_blobs(frame: &mut Frame, app: &mut App, area: Rect) {
             .style(Style::default().fg(Color::Green))
             .alignment(Alignment::Center);
 
+
+        let bottom_left = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
+            .split(chunks[1]);
+        
+        let system_info = Text::styled(
+            &app.walrus_system_info,
+            Style::default().fg(Color::Yellow),
+        );
+        let system_info = Paragraph::new(system_info)
+            .style(Style::default().fg(Color::Green))
+            .alignment(Alignment::Left);
+
+
+        frame.render_widget(system_info, bottom_left[0]);
         frame.render_stateful_widget(table, chunks[0], &mut app.table_state);
-        // frame.render_widget(title, chunks[0]);
+        frame.render_widget(title, chunks[0]);
         render_scrollbar(frame, app, chunks[0]);
     } else {
         let text = Text::from(format!("\n\n\nNo blobs found."));
@@ -186,16 +216,6 @@ fn render_dashboard(frame: &mut Frame, app: &mut App, area: Rect) {
         .direction(Direction::Vertical)
         .constraints([Constraint::Percentage(95), Constraint::Percentage(5)])
         .split(area);
-
-    let title = Text::styled(
-        "~ [Dashboard] ~",
-        Style::default()
-            .fg(Color::White)
-            .add_modifier(Modifier::BOLD),
-    );
-    let title = Paragraph::new(title)
-        .style(Style::default().fg(Color::Green))
-        .alignment(Alignment::Center);
 
     render_user_blobs(frame, app, chunks[0]);
     render_footer(frame, app, chunks[1]);

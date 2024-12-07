@@ -291,3 +291,27 @@ pub async fn walrus_list_blobs() -> Result<String, Box<dyn Error>> {
     serde_json::to_string_pretty(&blobs)
         .map_err(|e| format!("Failed to serialize JSON: {}", e).into())
 }
+
+pub async fn walrus_info_system() -> Result<String, Box<dyn Error>> {
+    let output = Command::new("walrus")
+        .arg("info")
+        .stdin(Stdio::null())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::null())
+        .output()
+        .map_err(|e| format!("Failed to start process: {}", e))?;
+
+    if !output.status.success() {
+        return Err(format!(
+            "Process failed: {}",
+            String::from_utf8_lossy(&output.stderr)
+        )
+        .into());
+    }
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    
+    Ok(stdout.to_string())
+}
+
+

@@ -32,14 +32,20 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let mut app = App::new();
 
     let sui_active_env = utils::sui_active_env().await?;
+    let sui_active_env = sui_active_env.trim().to_string();
     app.sui_active_env = sui_active_env;
 
     let sui_active_address = utils::sui_active_address().await?;
+    let sui_active_address = sui_active_address.trim().to_string();
     app.sui_active_address = sui_active_address;
 
     let user_blobs = utils::walrus_list_blobs().await?;
     let user_blobs = serde_json::from_str(&user_blobs)?;
     app.user_blobs = user_blobs;
+
+    let walrus_system_info = utils::walrus_info_system().await?;
+    let walrus_system_info = walrus_system_info.trim().to_string();
+    app.walrus_system_info = walrus_system_info;
 
     let _res = run_app(&mut terminal, &mut app).await;
 
@@ -100,7 +106,7 @@ async fn run_app(
                     }
                     _ => {}
                 },
-                CurrentScreen::Update => todo!(),
+                CurrentScreen::Updater => todo!(),
             }
         }
     }
