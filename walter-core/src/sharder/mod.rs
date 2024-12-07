@@ -3,11 +3,11 @@ use std::fs::File;
 use std::io::{self, Read, Seek};
 
 pub struct Sharder {
-    file: File,
-    shard_size: usize,
-    current_shard: Vec<u8>,
-    current_shard_index: usize,
-    total_shards: usize,
+    pub file: File,
+    pub shard_size: usize,
+    pub current_shard: Vec<u8>,
+    pub current_shard_index: usize,
+    pub total_shards: usize,
 }
 
 impl Sharder {
@@ -59,7 +59,6 @@ mod tests {
     fn test_sharder() {
         let sharder = Sharder::new("tests/test_sharder.txt", 5).unwrap();
         let shards: Vec<Vec<u8>> = sharder.collect();
-        println!("{:?}", shards);
         assert_eq!(shards.len(), 3);
         assert_eq!(shards[0], b"hello");
         assert_eq!(shards[1], b" worl");
