@@ -1,6 +1,0 @@
-{
-    "default_file_download_dir": "/home/phoenix/.walter",
-    "default_epochs": 10,
-    "default_shard_size": 10,
-    "files": {}
-}

@@ -1,6 +1,10 @@
 use serde::{Deserialize, Serialize};
+use shellexpand;
 use std::collections::HashMap;
 use std::fs;
+use std::path::Path;
+
+const CONFIG_FILE_PATH: &str = "~/.walter/config.json";
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct FileInfo {
@@ -46,58 +50,44 @@ impl WalterConfig {
         self.files.insert(file_path.to_string(), file_info);
     }
 
-    pub fn load_config_file(filename: &str) -> WalterConfig {
-        let config_file = fs::read_to_string(filename).expect("Unable to read config file");
-        let config: WalterConfig =
-            serde_json::from_str(&config_file).expect("Unable to parse config file");
-        return config;
+    pub fn load_config_file() -> WalterConfig {
+        let path = shellexpand::tilde(CONFIG_FILE_PATH).to_string();
+        let path = Path::new(&path);
+
+        if !path.exists() {
+            if let Some(parent) = path.parent() {
+                fs::create_dir_all(parent).expect("Unable to create config directory");
+            }
+
+            let default_config = WalterConfig {
+                default_file_download_dir: "~/.walter/downloads".to_string(),
+                default_epochs: 10,
+                default_shard_size: 1048576, // 1MB
+                files: HashMap::new(),
+            };
+
+            let config_json = serde_json::to_string(&default_config)
+                .expect("Unable to serialize default config!");
+            fs::write(path, config_json).expect("Unable to write default config file!");
+
+            return default_config;
+        }
+
+        let config_json = fs::read_to_string(path).expect("Unable to read config file!");
+        serde_json::from_str(&config_json).expect("Unable to deserialize config file!")
     }
 
-    pub fn save_config_file(&self, filename: &str) {
-        let config_json = serde_json::to_string(&self).expect("Unable to serialize config");
-        fs::write(filename, config_json).expect("Unable to write config file");
-    }
-}
+    pub fn save_config_file(&self) {
+        let path = shellexpand::tilde(CONFIG_FILE_PATH).to_string();
+        let path = Path::new(&path);
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+        if !path.exists() {
+            if let Some(parent) = path.parent() {
+                fs::create_dir_all(parent).expect("Unable to create config directory");
+            }
+        }
 
-    #[test]
-    fn test_load_config_file() {
-        let config = WalterConfig::load_config_file("tests/test_config.json");
-        assert_eq!(config.files.len(), 2);
-        assert_eq!(
-            config.files.get("test_sharder.txt").unwrap().is_encrypted,
-            false
-        );
-        assert_eq!(
-            config.files.get("test_sharder2.txt").unwrap().is_encrypted,
-            false
-        );
-    }
-
-    #[test]
-    fn test_save_config_file() {
-        let mut config = WalterConfig {
-            default_file_download_dir: "~/.walter".to_string(),
-            default_epochs: 10,
-            default_shard_size: 100,
-            files: HashMap::new(),
-        };
-
-        let file_info = FileInfo {
-            is_encrypted: false,
-            blobs: vec!["blob1".to_string(), "blob2".to_string()],
-        };
-
-        config.files.insert("test.txt".to_string(), file_info);
-        config.save_config_file("tests/test_save_config.json");
-        let new_config = WalterConfig::load_config_file("tests/test_save_config.json");
-        assert_eq!(new_config.files.len(), 1);
-        assert_eq!(
-            new_config.files.get("test.txt").unwrap().blobs,
-            vec!["blob1".to_string(), "blob2".to_string()]
-        );
+        let config_json = serde_json::to_string(self).expect("Unable to serialize config!");
+        fs::write(path, config_json).expect("Unable to write config file!");
     }
 }

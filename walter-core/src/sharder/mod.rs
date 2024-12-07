@@ -57,7 +57,7 @@ mod tests {
 
     #[test]
     fn test_sharder() {
-        let sharder = Sharder::new("tests/test_sharder.txt", 5).unwrap();
+        let sharder = Sharder::new("test_files/test_sharder.txt", 5).unwrap();
         let shards: Vec<Vec<u8>> = sharder.collect();
         assert_eq!(shards.len(), 3);
         assert_eq!(shards[0], b"hello");
