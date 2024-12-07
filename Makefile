@@ -6,8 +6,8 @@ WALRUS_REPO := https://github.com/walrus-storage/walrus.git
 SITE_BUILDER_REPO := https://github.com/walrus-storage/walrus-site-builder.git  
 SYSTEM := ubuntu-x86_64
 
-# # Default target  
-# all: setup-sui setup-walrus setup-site-builder  
+# Default target  
+all: setup-sui setup-walrus setup-site-builder  
 
 # Target to set up Sui  
 setup-sui:  
@@ -49,38 +49,20 @@ setup-walrus:
 # Target to set up Walrus Site-Builder  
 setup-site-builder:
 	@echo "Setting up Walrus Site-Builder..."
-	@if [ ! -d "walrus-sites" ]; then \
+	@if [ ! -d "$(HOME)/walrus-sites" ]; then \
 		echo "Cloning Walrus Sites"; \
-		git clone https://github.com/MystenLabs/walrus-sites.git; \
+		cd $(HOME) && git clone https://github.com/MystenLabs/walrus-sites.git; \
 	else \
 		echo "Walrus sites repository already exists."; \
 	fi
 	@echo "Building site-builder tool"
-	@cd walrus-sites && cargo build --release
+	@cd $(HOME)/walrus-sites && cargo build --release
 	@echo "Adding site-builder to PATH..."
 	@if ! grep -q 'export PATH=.*walrus-sites/target/release' ~/.zshrc; then \
-		echo 'export PATH=\$$PATH:$(PWD)/walrus-sites/target/release' >> ~/.zshrc; \
+		echo 'export PATH=$$PATH:$(HOME)/walrus-sites/target/release' >> ~/.zshrc; \
 		. ~/.zshrc; \
 	fi
 	@echo "Walrus site-builder setup complete."
-
-# setup-site-builder:  	
-# @echo "Setting up Walrus Site-Builder..."  
-# 	@if [ ! -d "walrus-sites" ]; then \  
-#   	echo "Cloning Walrus Sites repository..."; \  
-#   	git clone https://github.com/MystenLabs/walrus-sites.git; \  
-#   else \  
-#   	echo "Walrus Sites repository already exists."; \  
-#   fi  
-#   @echo "Building the site-builder tool..."  
-#   @cd walrus-sites && cargo build --release  
-#   @echo "Adding site-builder to PATH..."  
-#   @if ! grep -q 'export PATH=.*walrus-sites/target/release' ~/.bashrc; then \  
-#   	echo 'export PATH=$PATH:$(PWD)/walrus-sites/target/release' >> ~/.bashrc; \  
-#   	. ~/.bashrc; \  
-#   fi  
-#   @echo "Walrus Site-Builder setup complete."  
-
 
 # # Clean up all downloaded and cloned files  
 # clean:  
