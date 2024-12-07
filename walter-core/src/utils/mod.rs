@@ -14,6 +14,9 @@ impl WalrusClient {
         WalrusClient { config }
     }
 
+    pub fn update_config(&self) {
+        self.config.save_config_file();
+    }
     pub async fn upload_file(
         &mut self,
         file_path: &str,
@@ -195,7 +198,7 @@ mod tests {
     async fn test_download_from_walrus() {
         let output = download_blob(
             "DVZWz_QCEb2D_UPQzswv-DUqg-etmV6rEPzoERY4Tgg",
-            "./test_files/lmao",
+            "./test_files/download_test.txt",
         )
         .await;
 
@@ -268,21 +271,41 @@ mod tests {
 
     #[tokio::test]
     async fn test_file_upload() {
-        let config = WalterConfig::load_config_file("tests/test_config.json");
+        let config = WalterConfig::load_config_file();
         let mut client = WalrusClient::new(config);
         let output = client.upload_file("test_files/test_upload.txt", None).await;
-        client
-            .config
-            .save_config_file("tests/test_config_updated.json");
+        client.config.save_config_file();
         assert!(output.is_ok());
     }
 
     #[tokio::test]
     async fn test_file_download() {
-        let config = WalterConfig::load_config_file("tests/test_config_updated.json");
+        let config = WalterConfig::load_config_file();
         let client = WalrusClient::new(config);
         let output = client
             .download_file("test_files/test_upload.txt", None)
+            .await;
+        assert!(output.is_ok());
+    }
+
+    #[tokio::test]
+    async fn final_test() {
+        let config = WalterConfig::load_config_file();
+        let mut client = WalrusClient::new(config);
+        let output = client
+            .upload_file(
+                "test_files/test_upload.txt",
+                Some("Password@123".to_string()),
+            )
+            .await;
+
+        assert!(output.is_ok());
+
+        let output = client
+            .download_file(
+                "test_files/test_upload.txt",
+                Some("Password@123".to_string()),
+            )
             .await;
         assert!(output.is_ok());
     }
