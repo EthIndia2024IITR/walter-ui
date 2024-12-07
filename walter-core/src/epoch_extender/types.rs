@@ -1,6 +1,20 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
+
+pub struct AlreadyCertified {
+    pub blobId: String,
+    pub endEpoch: u32,
+    pub eventOrObject: EventOrObject,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum EventOrObject {
+    Event,
+    Object,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct BlobResponse {
     pub content: Vec<BlobEntry>,
     pub pageable: Pageable,

@@ -1,6 +1,6 @@
 mod types;
-use types::*;
 use reqwest::*;
+use types::*;
 
 /// Fetches blob entries from Walruscan API
 ///
@@ -117,9 +117,140 @@ pub fn download_from_walrus(blob_id: String, file_location: String) -> Option<bo
     Some(output["success"].as_bool().unwrap_or(false))
 }
 
+fn get_blob_id_from_response(response: BlobResponse) -> Option<String> {
+    if !response.content.is_empty() {
+        Some(response.content[0].blobId.clone())
+    } else {
+        None
+    }
+}
+
+fn get_blob_id_from_already_certified(response: AlreadyCertified) -> Option<String> {
+    Some(response.blobId.clone())
+}
+
+// decide if response is from BlobResponse or AlreadyCertified
+fn get_blob_id(response: serde_json::Value) -> Option<String> {
+    if response["blobId"].is_string() {
+        get_blob_id_from_already_certified(serde_json::from_value(response).unwrap())
+    } else {
+        get_blob_id_from_response(serde_json::from_value(response).unwrap())
+    }
+}
+
+pub fn epoch_extender(blob_id: String, epochs: Option<u16>) -> Option<bool> {
+    let output = download_from_walrus(blob_id, "/tmp/epoch_extender".to_string());
+    println!("{:?}", output);
+    if output.is_none() {
+        return None;
+    }
+    
+    let output = upload_to_walrus("/tmp/epoch_extender".to_string(), epochs);
+    if output.is_none() {
+        return None;
+    }
+    println!("{:?}", output);
+    Some(true)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_epoch_extender() {
+        let output = epoch_extender(
+            "DVZWz_QCEb2D_UPQzswv-DUqg-etmV6rEPzoERY4Tgg".to_string(),
+            Some(1),
+        );
+        assert!(output.is_some());
+        assert_eq!(output.unwrap(), true);
+    }
+
+    #[test]
+    fn test_get_blob_id() {
+        let response = serde_json::json!({
+            "blobId": "DVZWz_QCEb2D_UPQzswv-DUqg-etmV6rEPzoERY4Tgg",
+            "endEpoch": 0,
+            "eventOrObject": "Object"
+        });
+
+        let output = get_blob_id(response);
+        assert!(output.is_some());
+        assert_eq!(
+            output.unwrap(),
+            "DVZWz_QCEb2D_UPQzswv-DUqg-etmV6rEPzoERY4Tgg"
+        );
+    }
+
+    #[test]
+    fn test_get_blob_id_from_already_certified() {
+        let response = AlreadyCertified {
+            blobId: "DVZWz_QCEb2D_UPQzswv-DUqg-etmV6rEPzoERY4Tgg".to_string(),
+            endEpoch: 0,
+            eventOrObject: EventOrObject::Object,
+        };
+
+        let output = get_blob_id_from_already_certified(response);
+        assert!(output.is_some());
+        assert_eq!(
+            output.unwrap(),
+            "DVZWz_QCEb2D_UPQzswv-DUqg-etmV6rEPzoERY4Tgg"
+        );
+    }
+
+    #[test]
+    fn test_get_blob_id_from_response() {
+        let response = BlobResponse {
+            content: vec![BlobEntry {
+                blobId: "DVZWz_QCEb2D_UPQzswv-DUqg-etmV6rEPzoERY4Tgg".to_string(),
+                blobIdBase64: "DVZWz_QCEb2D_UPQzswv-DUqg-etmV6rEPzoERY4Tgg".to_string(),
+                objectId: "0xaa5cd02a25fc90c6dc419a52d02a59d6c484a27f88aeb698cd3570212cae9ba0"
+                    .to_string(),
+                startEpoch: 0,
+                endEpoch: 0,
+                size: 0,
+                timestamp: 0,
+            }],
+            pageable: Pageable {
+                pageNumber: 0,
+                pageSize: 0,
+                sort: Sort {
+                    sorted: false,
+                    empty: false,
+                    unsorted: false,
+                },
+                offset: 0,
+                paged: false,
+                unpaged: false,
+            },
+            totalPages: 0,
+            totalElements: 0,
+            last: false,
+            size: 0,
+            number: 0,
+            sort: Sort {
+                sorted: false,
+                empty: false,
+                unsorted: false,
+            },
+            numberOfElements: 0,
+            first: false,
+            empty: false,
+        };
+        let response_already_certified = AlreadyCertified {
+            blobId: "DVZWz_QCEb2D_UPQzswv-DUqg-etmV6rEPzoERY4Tgg".to_string(),
+            endEpoch: 0,
+            eventOrObject: EventOrObject::Object,
+        };
+
+        let output = get_blob_id_from_response(response);
+        assert!(output.is_some());
+        assert_eq!(
+            output.unwrap(),
+            "DVZWz_QCEb2D_UPQzswv-DUqg-etmV6rEPzoERY4Tgg"
+        );
+    }
 
     #[test]
     fn test_download_from_walrus() {
@@ -133,7 +264,8 @@ mod tests {
 
     #[test]
     fn test_upload_to_walrus() {
-        let output = upload_to_walrus("./test_files/uploadcopy.test".to_string(), None);
+        let epochs = Some(1);
+        let output = upload_to_walrus("./test_files/uploadcopy.test".to_string(), epochs);
         assert!(output.is_some());
         println!("{:?}", output);
     }
