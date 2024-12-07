@@ -1,12 +1,16 @@
-use ratatui::widgets::{ListState, ScrollbarState, TableState};
+use std::process::{Command, Stdio};
+
+use ratatui::{style::{Color, Style}, text::{Line, Text}, widgets::{ListState, ScrollbarState, TableState}};
 use serde::Serialize;
 
-use crate::utils::BlobInfo;
+use crate::utils::{BlobInfo, StorageInfo};
 
 pub enum CurrentScreen {
     Splash,
     Dashboard,
-    Updater,
+    Uploader,
+    Migrator,
+    SharderAndEpochExtender,
 }
 
 pub struct App {
@@ -18,6 +22,9 @@ pub struct App {
     pub scrollbar_state: ScrollbarState,
     pub user_blobs: Vec<BlobInfo>,
     pub walrus_system_info: String,
+    pub is_editing: bool,
+    pub filename: String,
+    pub pinata_api_key: String,
 }
 
 impl App {
@@ -31,6 +38,9 @@ impl App {
             sui_active_address: String::new(),
             sui_active_env: String::new(),
             walrus_system_info: String::new(),
+            is_editing: false,
+            filename: String::new(),
+            pinata_api_key: String::new(),
         }
     }
     pub fn next_row(&mut self) {
@@ -64,5 +74,10 @@ impl App {
             self.table_state.select(Some(i));
             self.scrollbar_state = self.scrollbar_state.position(i);
         }
+    }
+
+    pub fn upload_file(&mut self) {
+        // let output
+        // yahan likhna file upload logic
     }
 }
