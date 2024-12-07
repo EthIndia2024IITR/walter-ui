@@ -3,6 +3,7 @@ mod ui;
 mod utils;
 
 use app::{App, CurrentScreen};
+use walter_db;
 use crossterm::{
     event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
     execute,
@@ -19,9 +20,57 @@ use std::{
     io::{self, BufWriter, Stdout, Write},
 };
 use ui::render_ui;
+use walter_core::updater;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+    let args: Vec<String> = std::env::args().collect();
+    if args.len() > 1 {
+        match args[1].as_str() {
+            "--help" | "-h" => {
+                println!("\x1b[1;32mUsage:\x1b[0m walter-ui --cli [OPTIONS]");
+                println!("\x1b[1;32mOptions:\x1b[0m");
+                println!("  \x1b[1;32m-h, --help\x1b[0m    Print this help message");
+                println!("  \x1b[1;32m-c, --cli\x1b[0m     CLI mode");
+                println!("  \x1b[1;32m-s, --setup\x1b[0m   Setup Walter along with Walrus CLI, Walrus Site Builder and Sui Client");
+                println!("  \x1b[1;32m-u, --update\x1b[0m  Update Walter and its dependencies");
+                println!("  \x1b[1;32m-sql, --sqlite\x1b[0m Run Walrus SQLite shell with rollbacks. Requires blobID as argument");
+                return Ok(());
+            }
+            "--tui" | "-c" => {
+                println!("\x1b[1;32mWalTerminalUI\x1b[0m - \x1b[1;34mA TUI Devtool keychain for Walrus\x1b[0m");
+                println!("\x1b[1;32mVersion:\x1b[0m 0.1.0");
+            }
+            "--setup" | "-s" => {
+                println!("Running setup...");
+                let output = std::process::Command::new("make")
+                    .arg("all")
+                    .output()
+                    .expect("Failed to execute make command");
+
+                if output.status.success() {
+                    println!("Setup completed successfully.");
+                } else {
+                    eprintln!(
+                        "Setup failed with error: {}",
+                        String::from_utf8_lossy(&output.stderr)
+                    );
+                }
+                return Ok(());
+            }
+            "--update" | "-u" => {
+                updater::run();
+            }
+            "--sqlite" | "-sql" => {
+                walter_db::main().unwrap();
+                return Ok(());
+            }
+            _ => {
+                eprintln!("Unknown option: {}", args[1]);
+                return Ok(());
+            }
+        }
+    }
     enable_raw_mode()?;
     let mut stdout = io::stdout();
     execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
@@ -78,7 +127,7 @@ async fn run_app(
                         _ => {}
                     }
                 }
-    
+
                 if app.should_quit {
                     match key.code {
                         KeyCode::Char('y') => return Ok(true),

@@ -4,5 +4,5 @@ mod epoch_extender;
 mod migrator;
 mod sharder;
 mod types;
-mod updater;
+pub mod updater;
 mod utils;
