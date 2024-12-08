@@ -274,13 +274,17 @@ async fn run_app(
                 },
                 CurrentScreen::SharderAndEpochExtender => match key.code {
                     KeyCode::Char('K') | KeyCode::Char('k') => {
-                        // shard
+                        let status = app.upload_shard().await;
+                        app.sharder_status = status;
                     }
                     KeyCode::Char('Y') | KeyCode::Char('y') => {
-                        // encrypt
+                        app.shard_pass = "password".into();
+                        let status = app.upload_shard().await;
+                        app.sharder_status = status;
                     }
                     KeyCode::Char('T') | KeyCode::Char('t') => {
-                        // extend
+                        let status = app.extend_blob_epoch().await;
+                        app.extender_status = status;
                     }
                     KeyCode::Char(value) => {
                         if app.is_editing {

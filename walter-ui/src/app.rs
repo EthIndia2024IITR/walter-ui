@@ -2,6 +2,7 @@ use ratatui::widgets::{ScrollbarState, TableState};
 
 use walter_core::client::{download_blob, upload_blob, WalrusClient};
 use walter_core::config::WalterConfig;
+use walter_core::epoch_extender::extend_epoch;
 use walter_core::types::BlobInfo;
 
 pub enum CurrentScreen {
@@ -104,9 +105,14 @@ impl App {
     }
 
     pub async fn upload_shard(&mut self) -> String {
+        let password = match self.shard_pass.len() {
+            0 => None,
+            _ => Some(self.shard_pass.clone()),
+        };
+
         let result = self
             .walrus_client
-            .upload_file(&self.filename, Some(self.shard_pass.clone()))
+            .upload_file(&self.filename, password)
             .await;
 
         match result {
@@ -125,10 +131,24 @@ impl App {
     }
 
     pub async fn download_sharded_file(&mut self) -> String {
+        let password = match self.shard_pass.len() {
+            0 => None,
+            _ => Some(self.shard_pass.clone()),
+        };
+
         let result = self
             .walrus_client
-            .download_file(&self.filename, Some(self.shard_pass.clone()))
+            .download_file(&self.filename, password)
             .await;
+
+        match result {
+            Ok(b) => "success".to_string(),
+            Err(e) => "failure".to_string(),
+        }
+    }
+
+    pub async fn extend_blob_epoch(&self) -> String {
+        let result = extend_epoch(&self.extender_blob_id, self.epochs).await;
 
         match result {
             Ok(b) => "success".to_string(),
