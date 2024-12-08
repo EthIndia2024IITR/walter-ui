@@ -29,6 +29,10 @@ pub struct App {
     pub shard_pass: String,
     pub shard_encrypt: bool,
     pub extender_blob_id: String,
+
+    pub sharder_status: String,
+    pub extender_status: String,
+    pub migration_status: String,
 }
 
 impl App {
@@ -48,6 +52,9 @@ impl App {
             shard_pass: String::new(),
             shard_encrypt: false,
             extender_blob_id: String::new(),
+            sharder_status: String::new(),
+            extender_status: String::new(),
+            migration_status: String::new(),
         }
     }
     pub fn next_row(&mut self) {
@@ -87,4 +94,5 @@ impl App {
         // let output
         // yahan likhna file upload logic
     }
+
 }

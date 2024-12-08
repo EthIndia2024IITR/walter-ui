@@ -74,7 +74,7 @@ pub fn render_ui(frame: &mut Frame, app: &mut App) {
                 ),
                 frame.area(),
             );
-            render_updater(frame, app, chunks[1]);
+            render_sharder_and_extender(frame, app, chunks[1]);
         }
     }
 
@@ -93,52 +93,55 @@ fn render_splash_screen(frame: &mut Frame, app: &mut App, area: Rect) {
         ])
         .split(area);
 
-    let title_block = Block::default()
-        .borders(Borders::NONE)
-        .style(Style::default());
-
-    let title = Paragraph::new(Text::styled(
+    let title = Paragraph::new(
         "██╗    ██╗ █████╗ ██╗  ████████╗███████╗██████╗ 
 ██║    ██║██╔══██╗██║  ╚══██╔══╝██╔════╝██╔══██╗
 ██║ █╗ ██║███████║██║     ██║   █████╗  ██████╔╝
 ██║███╗██║██╔══██║██║     ██║   ██╔══╝  ██╔══██╗
 ╚███╔███╔╝██║  ██║███████╗██║   ███████╗██║  ██║
  ╚══╝╚══╝ ╚═╝  ╚═╝╚══════╝╚═╝   ╚══════╝╚═╝  ╚═╝",
-        Style::default().fg(Color::Green),
-    ))
-    .block(title_block)
+    )
+    .style(Style::default().fg(Color::Cyan))
     .alignment(Alignment::Center);
 
-    let instructions_block = Block::default().style(Style::default());
+    let loaded_details = vec![
+        Line::from(Span::styled(
+            format!("Active Sui Account: {}\n", app.sui_active_address),
+            Style::default()
+                .fg(Color::Cyan)
+                .add_modifier(Modifier::BOLD),
+        )),
+        Line::from(Span::styled(
+            format!("Active Sui Env: {}", app.sui_active_env),
+            Style::default()
+                .fg(Color::Magenta)
+                .add_modifier(Modifier::BOLD),
+        )),
+    ];
 
-    let center = Layout::default()
+    let details_block = Block::default()
+        .borders(Borders::ALL)
+        .border_type(BorderType::Rounded)
+        .title("Session Details")
+        .title_alignment(Alignment::Center)
+        .padding(Padding::new(1, 1, 2, 2));
+
+    let details_paragraph = Paragraph::new(loaded_details)
+        .block(details_block)
+        .style(Style::default().fg(Color::Yellow))
+        .alignment(Alignment::Left);
+
+    let details_area = Layout::default()
         .direction(Direction::Horizontal)
         .constraints([
-            Constraint::Percentage(10),
-            Constraint::Percentage(80),
-            Constraint::Percentage(10),
+            Constraint::Percentage(15),
+            Constraint::Percentage(70),
+            Constraint::Percentage(15),
         ])
-        .split(chunks[2]);
-
-    let loaded_details = format!(
-        "Active Sui Account \t{}\nActive Sui Env \t{}",
-        app.sui_active_address, app.sui_active_env
-    );
-    let instructions = Paragraph::new(Text::styled(
-        loaded_details,
-        Style::default().fg(Color::Yellow),
-    ))
-    .block(instructions_block)
-    .alignment(Alignment::Left)
-    .style(Style::default().fg(Color::Cyan))
-    .block(
-        Block::default()
-            .borders(Borders::ALL)
-            .border_type(BorderType::Rounded),
-    );
+        .split(chunks[2])[1];
 
     frame.render_widget(title, chunks[1]);
-    frame.render_widget(instructions, center[1]);
+    frame.render_widget(details_paragraph, details_area);
 }
 
 fn render_user_blobs(frame: &mut Frame, app: &mut App, area: Rect) {
@@ -291,7 +294,8 @@ fn render_uploader(frame: &mut Frame, app: &mut App, area: Rect) {
 
     let filename = Text::from(
         Line::from(format!("File path: {}", app.filename.clone()))
-            .style(Style::default().fg(Color::White)).alignment(Alignment::Center),
+            .style(Style::default().fg(Color::White))
+            .alignment(Alignment::Center),
     );
 
     frame.render_widget(filename, left[1]);
@@ -325,7 +329,8 @@ fn render_migrator(frame: &mut Frame, app: &mut App, area: Rect) {
             "Enter Pinata API Key: {}",
             app.pinata_api_key.clone()
         ))
-        .style(Style::default().fg(Color::White)).alignment(Alignment::Center),
+        .style(Style::default().fg(Color::White))
+        .alignment(Alignment::Center),
     );
 
     frame.render_widget(text_field, screen[0]);
@@ -338,12 +343,66 @@ fn render_sharder_and_extender(frame: &mut Frame, app: &mut App, area: Rect) {
         .constraints([Constraint::Percentage(90), Constraint::Percentage(10)])
         .split(area);
 
-    let screen = Layout::default()
-        .direction(Direction::Vertical)
-        .constraints([Constraint::Percentage(90), Constraint::Percentage(10)])
+    let content_chunks = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
         .split(chunks[0]);
 
-    
+    let sharder_area = content_chunks[0].inner(Margin {
+        horizontal: 2,
+        vertical: 2,
+    });
+
+    let extender_area = content_chunks[1].inner(Margin {
+        horizontal: 2,
+        vertical: 2,
+    });
+
+    let sharder_chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([Constraint::Min(1), Constraint::Length(1)])
+        .split(sharder_area);
+
+    let extender_chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([Constraint::Min(1), Constraint::Length(1)])
+        .split(extender_area);
+
+    let sharder_title = "Sharder";
+    let sharder_content = format!("File to shard: {}", app.filename);
+    let sharder_status = if app.sharder_status == "success" {
+        Paragraph::new("Sharding succeeded").style(Style::default().fg(Color::Green))
+    } else if app.sharder_status == "failure" {
+        Paragraph::new("Sharding failed").style(Style::default().fg(Color::Red))
+    } else {
+        Paragraph::new("").style(Style::default().fg(Color::Yellow))
+    };
+    let sharder_block = Block::default()
+        .borders(Borders::ALL)
+        .title(sharder_title)
+        .title_alignment(Alignment::Center);
+    let sharder_paragraph = Paragraph::new(sharder_content).block(sharder_block);
+
+    frame.render_widget(sharder_paragraph, sharder_chunks[0]);
+    frame.render_widget(sharder_status, sharder_chunks[1]);
+
+    let extender_title = "Epoch Extender";
+    let extender_content = format!("BlobID to epoch extend: {}", app.extender_blob_id);
+    let extender_status = if app.extender_status == "success" {
+        Paragraph::new("Extension succeeded").style(Style::default().fg(Color::Green))
+    } else if app.extender_status == "failure" {
+        Paragraph::new("Extension failed").style(Style::default().fg(Color::Red))
+    } else {
+        Paragraph::new("").style(Style::default().fg(Color::Yellow))
+    };
+    let extender_block = Block::default()
+        .borders(Borders::ALL)
+        .title(extender_title)
+        .title_alignment(Alignment::Center);
+    let extender_paragraph = Paragraph::new(extender_content).block(extender_block);
+
+    frame.render_widget(extender_paragraph, extender_chunks[0]);
+    frame.render_widget(extender_status, extender_chunks[1]);
 
     render_footer(frame, app, chunks[1]);
 }
@@ -380,10 +439,17 @@ fn render_footer(frame: &mut Frame, app: &mut App, area: Rect) {
 
     match app.current_screen {
         CurrentScreen::Splash => content = "Press 'Enter' to continue",
-        CurrentScreen::Dashboard => content = "[2] Uploader | [3] Migrate | [4] Sharder & Epoch Extender | [Q]uit",
-        CurrentScreen::Uploader => content = "[1] Dashboard | [Enter] Upload | [3] Migrator | [4] Sharder & Epoch Extender | [Q]uit",
-        CurrentScreen::Migrator => content = "[1] Dashboard | [2] Uploader | [M]igrate | [4] Sharder & Epoch Extender | [Q]uit",
-        CurrentScreen::SharderAndEpochExtender => content = "[1] Dashboard | [2] Uploader | [3] Migrator | [4] Sharder & Epoch Extender | [Q]uit",
+        CurrentScreen::Dashboard => {
+            content = "[2] Uploader | [3] Migrate | [4] Sharder & Epoch Extender | [Q]uit"
+        }
+        CurrentScreen::Uploader => content =
+            "[1] Dashboard | [Enter] Upload | [3] Migrator | [4] Sharder & Epoch Extender | [Q]uit",
+        CurrentScreen::Migrator => {
+            content =
+                "[1] Dashboard | [2] Uploader | [M]igrate | [4] Sharder & Epoch Extender | [Q]uit"
+        }
+        CurrentScreen::SharderAndEpochExtender => content =
+            "[1] Dashboard | [2] Uploader | [3] Migrator | [K] Shard | [E]ncrypt? | Epoch Ex[T]end | [Q]uit",
     }
 
     let instructions = Paragraph::new(Text::styled(content, Style::default().fg(Color::Green)))

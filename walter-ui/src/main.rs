@@ -155,6 +155,10 @@ async fn run_app(
                 if key.code == KeyCode::Char('3') {
                     app.current_screen = CurrentScreen::Migrator;
                 }
+
+                if key.code == KeyCode::Char('4') {
+                    app.current_screen = CurrentScreen::SharderAndEpochExtender;
+                }
             }
 
             match app.current_screen {
@@ -205,8 +209,20 @@ async fn run_app(
                     }
                     _ => {},
                 },
-                CurrentScreen::SharderAndEpochExtender => {
-                    
+                CurrentScreen::SharderAndEpochExtender => match key.code {
+                    KeyCode::Char(value) => {
+                        if app.is_editing {
+                            app.filename += &value.to_string();
+                        }
+                    }
+                    KeyCode::Backspace => {
+                        if app.is_editing {
+                            if app.filename.len() > 0 {
+                                app.filename.pop();
+                            }
+                        }
+                    }
+                    _ => {}
                 }
             }
         }
