@@ -524,14 +524,18 @@ fn render_exit_popup(frame: &mut Frame, area: Rect) {
 fn render_footer(frame: &mut Frame, app: &mut App, area: Rect) {
     let instructions_block = Block::default().padding(Padding::vertical(1));
 
-    let uploader_str = format!("[1] Dashboard | [Enter] Upload | [Up/Down] Epochs ({}) | [3] Migrator | [4] Sharder & Epoch Extender | [Q]uit", app.epochs);
+    let uploader_str = if app.is_editing {
+        format!("[1] Dashboard | [ESC] Exit Edit Mode | [Enter] Upload | [Up/Down] Epochs ({}) | [3] Migrator | [4] S&EE | [Q]uit", app.epochs)
+    } else {
+        format!("[1] Dashboard | [E]dit Mode | [Enter] Upload | [Up/Down] Epochs ({}) | [3] Migrator | [4] S&EE | [Q]uit", app.epochs)
+    };
 
     let content = match app.current_screen {
         CurrentScreen::Splash => "Press 'Enter' to continue",
         CurrentScreen::Dashboard => "[2] Uploader | [3] Migrate | [4] Sharder & Epoch Extender | [Q]uit",
         CurrentScreen::Uploader => &uploader_str,
         CurrentScreen::Migrator => "[1] Dashboard | [2] Uploader | [M]igrate | [4] Sharder & Epoch Extender | [Q]uit",
-        CurrentScreen::SharderAndEpochExtender => "[1] Dashboard | [2] Uploader | [3] Migrator | [K] Shard | [E]ncrypt? | Epoch Ex[T]end | [Q]uit",
+        CurrentScreen::SharderAndEpochExtender => "[1] Dashboard | [2] Uploader | [3] Migrator | [K] Shard | Encr[Y]pt | Epoch Ex[T]end | [Q]uit",
     };
 
     let instructions = Paragraph::new(Text::styled(content, Style::default().fg(Color::Green)))

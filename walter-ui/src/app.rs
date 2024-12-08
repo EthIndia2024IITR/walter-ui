@@ -34,7 +34,7 @@ pub struct App {
     pub extender_status: String,
     pub migration_status: String,
 
-    pub epochs: u64,
+    pub epochs: u16,
 }
 
 impl App {
