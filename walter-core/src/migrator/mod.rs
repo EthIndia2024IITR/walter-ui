@@ -1,5 +1,5 @@
 use crate::config::WalterConfig;
-use crate::utils::WalrusClient;
+use crate::client::WalrusClient;
 use failure;
 use reqwest::Client;
 use std::error::Error;

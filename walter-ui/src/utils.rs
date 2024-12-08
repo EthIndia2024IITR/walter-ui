@@ -158,7 +158,6 @@ pub async fn sui_active_address() -> Result<String, Box<dyn Error>> {
     Ok(stdout)
 }
 
-
 pub async fn sui_active_env() -> Result<String, Box<dyn Error>> {
     let child = Command::new("sui")
         .arg("client")
@@ -183,7 +182,6 @@ pub async fn sui_active_env() -> Result<String, Box<dyn Error>> {
 
     Ok(stdout)
 }
-
 
 pub async fn run_walrus(json_data: String) -> Result<String, Box<dyn Error>> {
     let mut child = Command::new("walrus")
@@ -310,8 +308,6 @@ pub async fn walrus_info_system() -> Result<String, Box<dyn Error>> {
     }
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    
+
     Ok(stdout.to_string())
 }
-
-

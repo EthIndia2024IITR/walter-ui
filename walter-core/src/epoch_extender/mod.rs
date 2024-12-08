@@ -1,4 +1,4 @@
-use super::utils::*;
+use super::client::*;
 
 pub async fn epoch_extender(blob_id: &str, epochs: u16) -> Option<bool> {
     let output = download_blob(blob_id, "/tmp/epoch_extender").await;

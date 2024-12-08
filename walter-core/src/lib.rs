@@ -5,4 +5,4 @@ mod migrator;
 mod sharder;
 mod types;
 mod updater;
-mod utils;
+mod client;

@@ -13,7 +13,6 @@ use ratatui::{
     widgets::ScrollbarState,
 };
 use serde_json;
-use std::fs::File;
 use std::{
     error::Error,
     io::{self, BufWriter, Stdout, Write},
@@ -78,7 +77,7 @@ async fn run_app(
                         _ => {}
                     }
                 }
-    
+
                 if app.should_quit {
                     match key.code {
                         KeyCode::Char('y') => return Ok(true),
