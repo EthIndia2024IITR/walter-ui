@@ -27,8 +27,6 @@ impl WalrusClient {
         let shards = Sharder::new(file_path, self.config.get_default_shard_size())?;
         let mut blobs: Vec<String> = Vec::new();
 
-        println!("{}", shards.total_shards);
-
         for shard in shards {
             let temp_file_path = std::env::temp_dir().join(format!(
                 "shard_{}.tmp",
@@ -71,7 +69,6 @@ impl WalrusClient {
                     .as_nanos()
             ));
 
-            println!("{} {}", blob, &temp_file_path.to_str().unwrap());
             let success = download_blob(blob, &temp_file_path.to_str().unwrap()).await;
             let success = success.unwrap();
 

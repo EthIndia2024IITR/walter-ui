@@ -330,7 +330,11 @@ fn render_uploader(frame: &mut Frame, app: &mut App, area: Rect) {
     let filename_text = format!("File path: {}", app.filename);
     let filename_widget = Paragraph::new(filename_text)
         .style(Style::default().fg(Color::Cyan))
-        .block(Block::default().borders(Borders::ALL).style(Style::default().fg(Color::Cyan)))
+        .block(
+            Block::default()
+                .borders(Borders::ALL)
+                .style(Style::default().fg(Color::Cyan)),
+        )
         .alignment(Alignment::Center);
 
     frame.render_widget(filename_widget, left[0]);
@@ -342,10 +346,15 @@ fn render_uploader(frame: &mut Frame, app: &mut App, area: Rect) {
         "File does not exist"
     };
 
-    let file_info_widget = Paragraph::new(file_info_text)
-        .style(Style::default().fg(Color::Cyan))
-        .block(Block::default().borders(Borders::ALL).style(Style::default().fg(Color::Cyan)))
-        .alignment(Alignment::Center);
+    let file_info_widget =
+        Paragraph::new(format!("{}, {}", file_info_text, &app.file_upload_status))
+            .style(Style::default().fg(Color::Cyan))
+            .block(
+                Block::default()
+                    .borders(Borders::ALL)
+                    .style(Style::default().fg(Color::Cyan)),
+            )
+            .alignment(Alignment::Center);
 
     frame.render_widget(file_info_widget, left[1]);
 
@@ -357,13 +366,11 @@ fn render_migrator(frame: &mut Frame, app: &mut App, area: Rect) {
         .direction(Direction::Vertical)
         .constraints([Constraint::Percentage(90), Constraint::Percentage(10)])
         .split(area);
-
     let content_area = chunks[0];
     let footer_area = chunks[1];
 
     // Center the migrator content
     let centered_area = centered_rect(60, 70, content_area);
-
     let migrator_block = Block::default()
         .title("Get API key from Pinata")
         .title_alignment(Alignment::Center)
@@ -382,7 +389,7 @@ fn render_migrator(frame: &mut Frame, app: &mut App, area: Rect) {
     let inner_content_chunks = Layout::default()
         .direction(Direction::Vertical)
         .spacing(2)
-        .constraints([Constraint::Length(3), Constraint::Length(3)])
+        .constraints([Constraint::Length(5), Constraint::Length(5)])
         .split(content_chunks[0]);
 
     let api_key_block = Block::default()
@@ -390,24 +397,24 @@ fn render_migrator(frame: &mut Frame, app: &mut App, area: Rect) {
         .title_alignment(Alignment::Center)
         .borders(Borders::ALL)
         .border_type(BorderType::Rounded)
-        .style(Style::default().fg(Color::Yellow))
-        .padding(Padding::new(1, 1, 1, 1));
+        .style(Style::default().fg(Color::Yellow));
 
     let api_key_paragraph = Paragraph::new(app.pinata_api_key.clone())
         .block(api_key_block)
-        .alignment(Alignment::Left);
+        .alignment(Alignment::Left)
+        .wrap(Wrap { trim: false });
 
     let migration_status_block = Block::default()
         .title("Migration Status")
         .title_alignment(Alignment::Center)
         .borders(Borders::ALL)
         .border_type(BorderType::Rounded)
-        .style(Style::default().fg(Color::Green))
-        .padding(Padding::new(1, 1, 1, 1));
+        .style(Style::default().fg(Color::Green));
 
     let migration_status_paragraph = Paragraph::new(app.migration_status.clone())
         .block(migration_status_block)
-        .alignment(Alignment::Left);
+        .alignment(Alignment::Left)
+        .wrap(Wrap { trim: false });
 
     // Render the widgets
     frame.render_widget(api_key_paragraph, inner_content_chunks[0]);

@@ -37,14 +37,17 @@ pub async fn migrate_files(jwt: &str) -> Result<(), Box<dyn Error>> {
     let config: WalterConfig = WalterConfig::load_config_file();
     let default_file_download_dir = config.get_default_file_download_dir();
     let download_dir = path::Path::new(&default_file_download_dir);
+    let download_dir = shellexpand::tilde(&download_dir.to_string_lossy()).to_string();
+    let download_dir = path::Path::new(&download_dir);
 
     let mut walrus_client = WalrusClient::new(config.clone());
     if let Some(file_list) = files["data"]["files"].as_array() {
         for file in file_list {
             if let (Some(name), Some(cid)) = (file["name"].as_str(), file["cid"].as_str()) {
                 let file_path = download_dir.join(name).to_string_lossy().to_string();
-                let file_path = shellexpand::tilde(&file_path).to_string();
-
+                if !path::Path::new(&download_dir).exists() {
+                    std::fs::create_dir_all(&download_dir)?;
+                }
                 download_ipfs_file(&file_path, cid).await?;
                 walrus_client.upload_file(&file_path, None).await?;
             }

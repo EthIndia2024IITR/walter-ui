@@ -17,6 +17,7 @@ use std::{
     io::{self, Stdout},
 };
 use ui::render_ui;
+use walter_core::client::{download_blob, upload_blob};
 use walter_core::migrator::migrate_files;
 use walter_core::updater;
 use walter_db;
@@ -34,6 +35,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 println!("  \x1b[1;32m-s, --setup\x1b[0m   Setup Walter along with Walrus CLI, Walrus Site Builder and Sui Client");
                 println!("  \x1b[1;32m-u, --update\x1b[0m  Update Walter and its dependencies");
                 println!("  \x1b[1;32m-sql, --sqlite\x1b[0m Run Walrus SQLite shell with rollbacks. Requires blobID as argument");
+                println!("  \x1b[1;32m-bs, --build-site\x1b[0m Build Walrus site with the given app path");
+                println!(
+                    "  \x1b[1;32m-rp, --run-pinner\x1b[0m Run Walrus Pinner in the background"
+                );
                 return Ok(());
             }
             "--tui" | "-c" => {
@@ -248,18 +253,27 @@ async fn run_app(
                         }
                     }
                     KeyCode::Enter => {
-                        // yahan aaega upload
+                        let res = upload_blob(&app.filename, app.epochs).await;
+                        match res {
+                            Ok(blob_id) => {
+                                app.file_upload_status = "File uploaded successfully!".to_string();
+                            }
+                            Err(e) => {
+                                app.file_upload_status =
+                                    format!("File upload Failed: {e}").to_string();
+                            }
+                        }
                     }
                     _ => {}
                 },
                 CurrentScreen::Migrator => match key.code {
-                    KeyCode::Char('v') => {
+                    KeyCode::Char('v') | KeyCode::Char('V') => {
                         app.pinata_api_key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI4YzAxZGVjYy1iZmFiLTQ4Y2UtOTQyMy05NjJkMWNkYjlhODYiLCJlbWFpbCI6InByYW5lZXRoc2Fyb2RlQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaW5fcG9saWN5Ijp7InJlZ2lvbnMiOlt7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6IkZSQTEifSx7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6Ik5ZQzEifV0sInZlcnNpb24iOjF9LCJtZmFfZW5hYmxlZCI6ZmFsc2UsInN0YXR1cyI6IkFDVElWRSJ9LCJhdXRoZW50aWNhdGlvblR5cGUiOiJzY29wZWRLZXkiLCJzY29wZWRLZXlLZXkiOiJmOTg4MzJhZDZkZmI0Mzk0NWM3MyIsInNjb3BlZEtleVNlY3JldCI6IjhlMTE3NTFlMjE2ZTczYWI4MWIxYWQ5NDkwYjliYWYyN2RiNDVhNjU3NzQzNzVhZTNjMzI2N2U4NDMzODBhNDUiLCJleHAiOjE3NjUxMTQ2OTF9.Gl5_t61lvIF4jds9ZNnXiEZdE_O4E9_imFeuYPiJqEE".into();
                     }
                     KeyCode::Char('x') => {
                         app.pinata_api_key = "".into();
                     }
-                    KeyCode::Char('M') => {
+                    KeyCode::Char('M') | KeyCode::Char('m') => {
                         let res = migrate_files(&app.pinata_api_key).await;
                         match res {
                             Ok(_) => {
@@ -285,6 +299,9 @@ async fn run_app(
                     KeyCode::Char('T') | KeyCode::Char('t') => {
                         let status = app.extend_blob_epoch().await;
                         app.extender_status = status;
+                    }
+                    KeyCode::Char('V') | KeyCode::Char('v') => {
+                        app.extender_blob_id = "A7Zy48JtR7Qid2V5eGhTizqzYjnooEE3Thi_RtTStOU".into();
                     }
                     KeyCode::Char(value) => {
                         if app.is_editing {
