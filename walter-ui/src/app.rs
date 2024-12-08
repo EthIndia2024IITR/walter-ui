@@ -36,9 +36,9 @@ pub struct App {
     pub shard_pass: String,
     pub shard_encrypt: bool,
     pub extender_blob_id: String,
-
     pub walrus_client: WalrusClient,
-
+    pub sharder_status: String,
+    pub extender_status: String,
     pub migration_status: String,
 }
 
@@ -60,6 +60,8 @@ impl App {
             shard_encrypt: false,
             extender_blob_id: String::new(),
             walrus_client: WalrusClient::new(WalterConfig::load_config_file()),
+            sharder_status: String::new(),
+            extender_status: String::new(),
             migration_status: String::new(),
         }
     }
@@ -113,4 +115,5 @@ impl App {
         self.walrus_client
             .download_file(&self.filename, Some(self.shard_pass.clone()));
     }
+
 }
