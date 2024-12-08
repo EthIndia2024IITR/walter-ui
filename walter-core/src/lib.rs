@@ -1,8 +1,8 @@
-mod config;
+pub mod client;
+pub mod config;
 mod encryptor;
 mod epoch_extender;
-mod migrator;
+pub mod migrator;
 mod sharder;
-mod types;
-mod updater;
-mod client;
+pub mod types;
+pub mod updater;

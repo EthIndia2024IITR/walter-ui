@@ -6,7 +6,7 @@ use crate::sharder::Sharder;
 use crate::types::*;
 
 pub struct WalrusClient {
-    config: WalterConfig,
+    pub config: WalterConfig,
 }
 
 impl WalrusClient {
@@ -14,9 +14,6 @@ impl WalrusClient {
         WalrusClient { config }
     }
 
-    pub fn update_config(&self) {
-        self.config.save_config_file();
-    }
     pub async fn upload_file(
         &mut self,
         file_path: &str,

@@ -3,7 +3,6 @@ mod ui;
 mod utils;
 
 use app::{App, CurrentScreen};
-use walter_db;
 use crossterm::{
     event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
     execute,
@@ -19,7 +18,9 @@ use std::{
     io::{self, BufWriter, Stdout, Write},
 };
 use ui::render_ui;
+use walter_core::migrator::migrate_files;
 use walter_core::updater;
+use walter_db;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -197,16 +198,23 @@ async fn run_app(
                 },
                 CurrentScreen::Migrator => match key.code {
                     KeyCode::Char('v') => {
-                        // yahan dalna key
-                        app.pinata_api_key = "API KEY COMES HERE".into();
-                    },
+                        app.pinata_api_key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI4YzAxZGVjYy1iZmFiLTQ4Y2UtOTQyMy05NjJkMWNkYjlhODYiLCJlbWFpbCI6InByYW5lZXRoc2Fyb2RlQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaW5fcG9saWN5Ijp7InJlZ2lvbnMiOlt7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6IkZSQTEifSx7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6Ik5ZQzEifV0sInZlcnNpb24iOjF9LCJtZmFfZW5hYmxlZCI6ZmFsc2UsInN0YXR1cyI6IkFDVElWRSJ9LCJhdXRoZW50aWNhdGlvblR5cGUiOiJzY29wZWRLZXkiLCJzY29wZWRLZXlLZXkiOiJmOTg4MzJhZDZkZmI0Mzk0NWM3MyIsInNjb3BlZEtleVNlY3JldCI6IjhlMTE3NTFlMjE2ZTczYWI4MWIxYWQ5NDkwYjliYWYyN2RiNDVhNjU3NzQzNzVhZTNjMzI2N2U4NDMzODBhNDUiLCJleHAiOjE3NjUxMTQ2OTF9.Gl5_t61lvIF4jds9ZNnXiEZdE_O4E9_imFeuYPiJqEE".into();
+                    }
                     KeyCode::Char('x') => {
                         app.pinata_api_key = "".into();
-                    },
-                    KeyCode::Char('M') => {
-                        // yahan karo migration
                     }
-                    _ => {},
+                    KeyCode::Char('M') => {
+                        let res = migrate_files(&app.pinata_api_key).await;
+                        match res {
+                            Ok(_) => {
+                                app.migration_status = "Migration successful".into();
+                            }
+                            Err(e) => {
+                                app.migration_status = format!("Migration failed: {}", e);
+                            }
+                        }
+                    }
+                    _ => {}
                 },
                 CurrentScreen::SharderAndEpochExtender => match key.code {
                     KeyCode::Char(value) => {
