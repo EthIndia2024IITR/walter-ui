@@ -133,6 +133,16 @@ async fn run_app(
                     _ => {}
                 },
                 CurrentScreen::Uploader => match key.code {
+                    KeyCode::Up | KeyCode::Char('+') => {
+                        if app.epochs < 200 {
+                            app.epochs += 1;
+                        }
+                    }
+                    KeyCode::Down | KeyCode::Char('-') => {
+                        if app.epochs > 1 {
+                            app.epochs -= 1;
+                        }
+                    }
                     KeyCode::Char(value) => {
                         if app.is_editing {
                             app.filename += &value.to_string();
