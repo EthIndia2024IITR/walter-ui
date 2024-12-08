@@ -90,19 +90,15 @@ mod tests {
     use super::*;
     use std::fs;
     use std::fs::File;
-    use std::io::Write;
 
     #[test]
     fn test_encrypt_decrypt_file() {
-        let input_file = "tests/test.txt";
-        let encrypted_file = "tests/test.txt.enc";
-        let decrypted_file = "tests/test.txt.dec";
+        let input_file = "test_files/test_upload.txt";
+        let encrypted_file = "test_files/test_upload.txt.enc";
+        let decrypted_file = "test_files/test_upload.txt.dec";
         let password = "password";
 
-        // Create a test file
-        let mut file = File::create(input_file).unwrap();
-        file.write_all(b"Hello, World!").unwrap();
-
+        let original_contents = fs::read_to_string(input_file).unwrap();
         // Encrypt the file
         encrypt_file(input_file, encrypted_file, password).unwrap();
 
@@ -115,10 +111,9 @@ mod tests {
         file.read_to_string(&mut decrypted_content).unwrap();
 
         // Clean up
-        fs::remove_file(input_file).unwrap();
         fs::remove_file(encrypted_file).unwrap();
         fs::remove_file(decrypted_file).unwrap();
 
-        assert_eq!(decrypted_content, "Hello, World!");
+        assert_eq!(decrypted_content, original_contents);
     }
 }

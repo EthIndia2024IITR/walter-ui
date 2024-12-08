@@ -11,3 +11,4 @@ serde = { version = "1.0.215", features = ["derive"] }
 serde_json = "1.0.133"
 tokio = { version = "1.42.0", features = ["full"] }
 walter-core = { path = "../walter-core" }
+walter-db = { path = "../walter-db" }
