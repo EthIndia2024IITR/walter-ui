@@ -2,16 +2,19 @@
 
 Walter Core DevTools is a collection of tools for the Walrus file storage network. It includes the following features:
 
-1. Sharding support for large files.
-2. File encryption and decryption.
-3. File integrity verification.
-4. Update and upgrade Walrus binaries.
-5. Extend your Walrus storage duration using Epoch Extender.
-6. A service to shift all your files from other popular IPFS providers like Pinata to Walrus in one go.
+| Feature | Description |  
+|---------|-------------|  
+| 🔄 Sharding | Advanced file sharding support for handling large files |  
+| 🔒 Encryption | End-to-end file encryption and decryption |  
+| ✅ Verification | Robust file integrity verification system |  
+| 📦 Auto-Update | Automated Walrus binary updates |  
+| ⏰ Epoch Extension | Extend your storage duration with Epoch Extender |  
+| 🔄 Migration | One-click migration from other IPFS providers |  
+| 📌 HTTP Pinning | Persistent file pinning via HTTP |   
 
 # Walter UI
 
-Walter UI is a terminal-based user interface for managing and monitoring your Rust projects. It leverages the power of `crossterm` for terminal handling, `ratatui` for building rich terminal UIs, and `reqwest` for making HTTP requests. This project is part of the larger Walter system, which includes core functionalities provided by `walter-core`.
+Walter UI is a **terminal-based** user interface for managing and monitoring your Rust projects. It leverages the power of `crossterm` for terminal handling, `ratatui` for building rich terminal UIs, and `reqwest` for making HTTP requests. This project is part of the larger Walter system, which includes core functionalities provided by `walter-core`.
 
 ## Features
 
@@ -48,7 +51,7 @@ Walter UI is a terminal-based user interface for managing and monitoring your Ru
 
 - Rust and Cargo installed on your system.
 
-### Installation
+### 📦 Installation
 
 1. Clone the repository:
         ```
