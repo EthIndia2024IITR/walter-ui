@@ -247,6 +247,9 @@ async fn run_app(
                             }
                         }
                     }
+                    KeyCode::Enter => {
+                        // yahan aaega upload
+                    }
                     _ => {}
                 },
                 CurrentScreen::Migrator => match key.code {
@@ -270,6 +273,15 @@ async fn run_app(
                     _ => {}
                 },
                 CurrentScreen::SharderAndEpochExtender => match key.code {
+                    KeyCode::Char('K') | KeyCode::Char('k') => {
+                        // shard
+                    }
+                    KeyCode::Char('Y') | KeyCode::Char('y') => {
+                        // encrypt
+                    }
+                    KeyCode::Char('T') | KeyCode::Char('t') => {
+                        // extend
+                    }
                     KeyCode::Char(value) => {
                         if app.is_editing {
                             app.filename += &value.to_string();
