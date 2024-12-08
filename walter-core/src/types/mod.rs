@@ -1,4 +1,4 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 #[allow(non_snake_case)]
 #[derive(Deserialize, Debug)]
@@ -28,6 +28,16 @@ pub struct Storage {
     pub startEpoch: u32,
     pub endEpoch: u32,
     pub storageSize: u64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct BlobInfo {
+    pub blob_id: String,
+    pub unencoded_size: String, // Keep as string to preserve original format
+    pub is_certified: bool,
+    pub is_deletable: bool,
+    pub expiration_epoch: u64,
+    pub object_id: String,
 }
 
 #[allow(non_snake_case)]

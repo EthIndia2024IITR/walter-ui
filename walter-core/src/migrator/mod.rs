@@ -1,9 +1,9 @@
+use crate::client::WalrusClient;
 use crate::config::WalterConfig;
-use crate::utils::WalrusClient;
 use failure;
 use reqwest::Client;
 use std::error::Error;
-use std::fs::{self, write as write_file};
+use std::fs::write as write_file;
 use std::path;
 
 const PINATA_URL: &str = "https://api.pinata.cloud/v3/";
@@ -51,7 +51,7 @@ pub async fn migrate_files(jwt: &str) -> Result<(), Box<dyn Error>> {
         }
     }
 
-    walrus_client.update_config();
+    walrus_client.config.save_config_file();
     Ok(())
 }
 

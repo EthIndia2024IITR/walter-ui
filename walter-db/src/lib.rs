@@ -181,7 +181,4 @@ fn execute_query(conn: &Connection, query: &str, blob_id_prev: &mut String) -> R
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    main!();
 }

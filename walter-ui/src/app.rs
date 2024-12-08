@@ -1,9 +1,15 @@
 use std::process::{Command, Stdio};
 
-use ratatui::{style::{Color, Style}, text::{Line, Text}, widgets::{ListState, ScrollbarState, TableState}};
+use ratatui::{
+    style::{Color, Style},
+    text::{Line, Text},
+    widgets::{ListState, ScrollbarState, TableState},
+};
 use serde::Serialize;
 
-use crate::utils::{BlobInfo, StorageInfo};
+use walter_core::client::{download_blob, upload_blob, WalrusClient};
+use walter_core::config::WalterConfig;
+use walter_core::types::BlobInfo;
 
 pub enum CurrentScreen {
     Splash,
@@ -16,6 +22,7 @@ pub enum CurrentScreen {
 pub struct App {
     pub sui_active_address: String,
     pub sui_active_env: String,
+
     pub current_screen: CurrentScreen,
     pub should_quit: bool,
     pub table_state: TableState,
@@ -23,13 +30,13 @@ pub struct App {
     pub user_blobs: Vec<BlobInfo>,
     pub walrus_system_info: String,
     pub is_editing: bool,
+
     pub filename: String,
     pub pinata_api_key: String,
-
     pub shard_pass: String,
     pub shard_encrypt: bool,
     pub extender_blob_id: String,
-
+    pub walrus_client: WalrusClient,
     pub sharder_status: String,
     pub extender_status: String,
     pub migration_status: String,
@@ -52,6 +59,7 @@ impl App {
             shard_pass: String::new(),
             shard_encrypt: false,
             extender_blob_id: String::new(),
+            walrus_client: WalrusClient::new(WalterConfig::load_config_file()),
             sharder_status: String::new(),
             extender_status: String::new(),
             migration_status: String::new(),
@@ -91,8 +99,21 @@ impl App {
     }
 
     pub fn upload_file(&mut self) {
-        // let output
-        // yahan likhna file upload logic
+        // upload_blob(&self.filename, self.epochs);
+    }
+
+    pub fn upload_shard(&mut self) {
+        self.walrus_client
+            .upload_file(&self.filename, Some(self.shard_pass.clone()));
+    }
+
+    pub fn download_file(&mut self) {
+        download_blob(&self.extender_blob_id, &self.filename);
+    }
+
+    pub fn download_sharded_file(&mut self) {
+        self.walrus_client
+            .download_file(&self.filename, Some(self.shard_pass.clone()));
     }
 
 }
