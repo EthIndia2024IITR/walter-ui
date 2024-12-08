@@ -30,7 +30,6 @@ impl WalrusClient {
         println!("{}", shards.total_shards);
 
         for shard in shards {
-            println!("Uploading shard..");
             let temp_file_path = std::env::temp_dir().join(format!(
                 "shard_{}.tmp",
                 std::time::SystemTime::now()
@@ -46,7 +45,6 @@ impl WalrusClient {
             )
             .await?;
 
-            println!("Blob ID: {}", blob_id);
             blobs.push(blob_id);
             std::fs::remove_file(&temp_file_path)?;
         }
@@ -75,12 +73,7 @@ impl WalrusClient {
 
             println!("{} {}", blob, &temp_file_path.to_str().unwrap());
             let success = download_blob(blob, &temp_file_path.to_str().unwrap()).await;
-
-            println!("Downloaded shard..{:?}", success);
-
             let success = success.unwrap();
-
-            println!("Downloaded shard..{}", success);
 
             if !success {
                 return Err("Failed to download blob".into());
