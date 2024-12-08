@@ -40,6 +40,8 @@ pub struct App {
     pub sharder_status: String,
     pub extender_status: String,
     pub migration_status: String,
+
+    pub epochs: u64,
 }
 
 impl App {
@@ -63,6 +65,7 @@ impl App {
             sharder_status: String::new(),
             extender_status: String::new(),
             migration_status: String::new(),
+            epochs: 1,
         }
     }
     pub fn next_row(&mut self) {
