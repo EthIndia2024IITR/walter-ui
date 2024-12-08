@@ -34,7 +34,7 @@ pub struct App {
     pub extender_status: String,
     pub migration_status: String,
 
-    pub epochs: u64,
+    pub epochs: u16,
 }
 
 impl App {
@@ -94,21 +94,45 @@ impl App {
         }
     }
 
-    pub fn upload_file(&mut self) {
-        // upload_blob(&self.filename, self.epochs);
+    pub async fn upload_file(&mut self) -> String {
+        let result = upload_blob(&self.filename, self.epochs).await;
+
+        match result {
+            Ok(b) => "success".to_string(),
+            Err(e) => "failure".to_string(),
+        }
     }
 
-    pub fn upload_shard(&mut self) {
-        self.walrus_client
-            .upload_file(&self.filename, Some(self.shard_pass.clone()));
+    pub async fn upload_shard(&mut self) -> String {
+        let result = self
+            .walrus_client
+            .upload_file(&self.filename, Some(self.shard_pass.clone()))
+            .await;
+
+        match result {
+            Ok(b) => "success".to_string(),
+            Err(e) => "failure".to_string(),
+        }
     }
 
-    pub fn download_file(&mut self) {
-        download_blob(&self.extender_blob_id, &self.filename);
+    pub async fn download_file(&mut self) -> String {
+        let result = download_blob(&self.extender_blob_id, &self.filename).await;
+
+        match result {
+            Ok(b) => "success".to_string(),
+            Err(e) => "failure".to_string(),
+        }
     }
 
-    pub fn download_sharded_file(&mut self) {
-        self.walrus_client
-            .download_file(&self.filename, Some(self.shard_pass.clone()));
+    pub async fn download_sharded_file(&mut self) -> String {
+        let result = self
+            .walrus_client
+            .download_file(&self.filename, Some(self.shard_pass.clone()))
+            .await;
+
+        match result {
+            Ok(b) => "success".to_string(),
+            Err(e) => "failure".to_string(),
+        }
     }
 }
