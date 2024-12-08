@@ -1,49 +1,24 @@
-# Walter Core DevTools
+# WalTer Core DevTools
 
-Walter Core DevTools is a collection of tools for the Walrus file storage network. It includes the following features:
-
-| Feature | Description |  
-|---------|-------------|  
-| 🔄 Sharding | Advanced file sharding support for handling large files |  
-| 🔒 Encryption | End-to-end file encryption and decryption |  
-| ✅ Verification | Robust file integrity verification system |  
-| 📦 Auto-Update | Automated Walrus binary updates |  
-| ⏰ Epoch Extension | Extend your storage duration with Epoch Extender |  
-| 🔄 Migration | One-click migration from other IPFS providers |  
-| 📌 HTTP Pinning | Persistent file pinning via HTTP |   
-
-# Walter UI
-
-Walter UI is a **terminal-based** user interface for managing and monitoring your Rust projects. It leverages the power of `crossterm` for terminal handling, `ratatui` for building rich terminal UIs, and `reqwest` for making HTTP requests. This project is part of the larger Walter system, which includes core functionalities provided by `walter-core`.
+WalTer Core DevTools is a collection of tools made for the Walrus file storage network written completely in Rust.
 
 ## Features
 
-### 1. Splash Screen
-- **Navigation**: Press `Enter` to proceed to the Dashboard.
-- **Scrollbar**: Automatically initializes if user blobs are present.
+| Feature            | Description                                             |
+| ------------------ | ------------------------------------------------------- |
+| 🔄 Sharding        | Advanced file sharding support for handling large files |
+| 🔒 Encryption      | End-to-end file encryption and decryption               |
+| ✅ Verification    | Robust file integrity verification system               |
+| 📦 Auto-Update     | Automated Walrus binary updates                         |
+| ⏰ Epoch Extension | Extend your storage duration with Epoch Extender        |
+| 🔄 Migration       | One-click migration from other IPFS providers           |
+| 📌 HTTP Pinning    | Node.js based HTTP Pinning service                      |
+| 🛢️ Database        | Always available SQLite which supports rollbacks        |
+| 🏗️ Site-builder    | Easy install and usage access for Site-Builder          |
 
-### 2. Dashboard
-- **Quit Application**: Press `q` to initiate quit, then `y` to confirm or `n` to cancel.
-- **Navigation**: 
-    - Press `1` to switch to the Dashboard screen.
-    - Press `2` to switch to the Updater screen.
-    - Use `Up` and `Down` arrow keys to navigate through rows.
-- **Current Screen**: Displays the current screen (Dashboard or Updater).
+# WalTer UI
 
-### 3. Updater
-- **Functionality**: (Commented out in the current version)
-    - Intended to create a `walrus.json` file with system information.
-    - Press `Enter` to execute the update process.
-
-## Dependencies
-
-- **crossterm**: For handling terminal I/O.
-- **ratatui**: For building the terminal UI.
-- **reqwest**: For making HTTP requests.
-- **serde**: For serializing and deserializing data.
-- **serde_json**: For working with JSON data.
-- **tokio**: For asynchronous programming.
-- **walter-core**: Core functionalities shared across the Walter system.
+WalTer-UI is a **terminal-based** Devtool toolchain built on Rust. It leverages the power of `crossterm` for terminal handling, `ratatui` for building rich terminal UIs, and `reqwest` for making HTTP requests. This project brings together the larger WalTer ecosystem, which includes functionalities provided by the meticulously tested and modular WalTer-Core library.
 
 ## Getting Started
 
@@ -53,32 +28,82 @@ Walter UI is a **terminal-based** user interface for managing and monitoring you
 
 ### 📦 Installation
 
-1. Clone the repository:
-        ```
-        git clone https://github.com/EthIndia2024IITR/walter-ui ;
-        cd walter-ui
-        ```
+1.  Clone the repository:
 
-2. Build the project:
-        ```
-        cargo build
-        ```
+    ```bash
+    git clone https://github.com/EthIndia2024IITR/walter-ui.git
+    ```
 
-3. Run the project:
-        ```
-        cargo run
-        ```
+2.  Install from Makefile:
 
-## License
+    ```bash
+    cd walter-ui;
+    ```
 
-This project is licensed under the terms of the license found in the `LICENSE` file in the root directory of this source tree.
+3.  Run the project:
 
-## Contributing
+    ```bash
+    cargo build && cargo run
 
-Contributions are welcome! Please read the `CONTRIBUTING.md` file for guidelines on how to contribute to this project.
+    ```
 
-## Acknowledgements
+4.  You can access the CLI by using the --help flag
 
-- Thanks to the developers of `crossterm`, `ratatui`, `reqwest`, `serde`, `serde_json`, and `tokio` for their amazing libraries.
+## Instructions
 
-For more information, please refer to the [documentation](https://doc.rust-lang.org/cargo/guide/cargo-toml-vs-cargo-lock.html).
+## CLI Options
+
+### `--help` | `-h`
+
+Prints the help message with usage instructions and available options.
+
+### `--cli` | `-c`
+
+Enables CLI mode for Walter UI.
+
+### `--setup` | `-s`
+
+Sets up Walter along with Walrus CLI, Walrus Site Builder, and Sui Client.
+
+### `--update` | `-u`
+
+Updates Walter and its dependencies.
+
+### `--sqlite` | `-sql`
+
+Runs the Walrus SQLite shell with rollbacks. Requires `blobID` as an argument.
+
+-
+
+### 1. Splash Screen
+
+- `Enter` key to get into the dashboard and use the arrow keys to navigate here. Use the number keys to navigate between screens and check for instructions on the bottom part of the screen.
+
+### 2. Dashboard
+
+- Contains descriptive System and Blob Information
+- Users can view the expiry epoch of their blobs
+- Shows all blobs associated with a users `sui` account
+
+### 3. Uploader
+
+- Can be used to upload individual files
+
+### 4. Migrate from IPFS
+
+- **Users can migrate their existing filesystem completely from IPFS to Walrus.**
+
+### 5. Sharding with Encryption and Epoch Extension
+
+- Users can send their large databases to Walrus by breaking them into 13.3 GB chunks (which is the max size that Walrus supports).
+- Also supports encryption.
+
+- **Quit Application**: Press `q` to initiate quit, then `y` to confirm or `n` to cancel.
+- **Navigation**:
+  - Use the footer to see all the navigation information.
+
+## System Architecture
+
+### All that we built, in a glance
+
+<img src="architecture.png" alt="System Architecture" width="700">
