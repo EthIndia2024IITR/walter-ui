@@ -25,6 +25,10 @@ pub struct App {
     pub is_editing: bool,
     pub filename: String,
     pub pinata_api_key: String,
+
+    pub shard_pass: String,
+    pub shard_encrypt: bool,
+    pub extender_blob_id: String,
 }
 
 impl App {
@@ -41,6 +45,9 @@ impl App {
             is_editing: false,
             filename: String::new(),
             pinata_api_key: String::new(),
+            shard_pass: String::new(),
+            shard_encrypt: false,
+            extender_blob_id: String::new(),
         }
     }
     pub fn next_row(&mut self) {
