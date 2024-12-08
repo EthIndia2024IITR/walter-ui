@@ -14,10 +14,12 @@ pub struct FileInfo {
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct WalterConfig {
-    default_file_download_dir: String,
-    default_epochs: u16,
-    default_shard_size: usize,
-    files: HashMap<String, FileInfo>,
+    pub default_file_download_dir: String,
+    pub default_epochs: u16,
+    pub default_shard_size: usize,
+    pub renew_epoch_threshold: u16,
+    pub default_renewal_value: u16,
+    pub files: HashMap<String, FileInfo>,
 }
 
 impl WalterConfig {
@@ -63,6 +65,8 @@ impl WalterConfig {
                 default_file_download_dir: "~/.walter/downloads".to_string(),
                 default_epochs: 10,
                 default_shard_size: 1048576, // 1MB
+                renew_epoch_threshold: 2,
+                default_renewal_value: 10,
                 files: HashMap::new(),
             };
 

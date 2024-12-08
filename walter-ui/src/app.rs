@@ -1,11 +1,4 @@
-use std::process::{Command, Stdio};
-
-use ratatui::{
-    style::{Color, Style},
-    text::{Line, Text},
-    widgets::{ListState, ScrollbarState, TableState},
-};
-use serde::Serialize;
+use ratatui::widgets::{ScrollbarState, TableState};
 
 use walter_core::client::{download_blob, upload_blob, WalrusClient};
 use walter_core::config::WalterConfig;
@@ -115,5 +108,4 @@ impl App {
         self.walrus_client
             .download_file(&self.filename, Some(self.shard_pass.clone()));
     }
-
 }

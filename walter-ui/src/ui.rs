@@ -1,12 +1,10 @@
-use std::fmt::format;
-
 use ratatui::{
     layout::{Alignment, Constraint, Direction, Layout, Margin, Rect},
     style::{Color, Modifier, Style, Stylize},
-    text::{self, Line, Span, Text},
+    text::{Line, Span, Text},
     widgets::{
-        Bar, BarChart, BarGroup, Block, BorderType, Borders, Cell, Clear, HighlightSpacing, List,
-        ListItem, Padding, Paragraph, Row, Scrollbar, ScrollbarOrientation, Table, Tabs, Wrap,
+        Block, BorderType, Borders, Cell, Clear, HighlightSpacing, Padding, Paragraph, Row,
+        Scrollbar, ScrollbarOrientation, Table, Wrap,
     },
     Frame,
 };
@@ -435,7 +433,7 @@ fn render_exit_popup(frame: &mut Frame, area: Rect) {
 
 fn render_footer(frame: &mut Frame, app: &mut App, area: Rect) {
     let instructions_block = Block::default().padding(Padding::vertical(1));
-    let mut content = "";
+    let mut content;
 
     match app.current_screen {
         CurrentScreen::Splash => content = "Press 'Enter' to continue",

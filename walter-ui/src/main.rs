@@ -12,10 +12,9 @@ use ratatui::{
     prelude::{CrosstermBackend, Terminal},
     widgets::ScrollbarState,
 };
-use serde_json;
 use std::{
     error::Error,
-    io::{self, BufWriter, Stdout, Write},
+    io::{self, Stdout},
 };
 use ui::render_ui;
 use walter_core::migrator::migrate_files;
@@ -63,6 +62,50 @@ async fn main() -> Result<(), Box<dyn Error>> {
             }
             "--sqlite" | "-sql" => {
                 walter_db::main().unwrap();
+                return Ok(());
+            }
+            "--build-site" | "-bs" => {
+                let app_path = args[2].as_str();
+                let output = std::process::Command::new("site-builder")
+                    .arg("publish")
+                    .arg(app_path)
+                    .output()
+                    .expect("Failed to execute command.");
+
+                if output.status.success() {
+                    println!("Site built successfully.");
+                } else {
+                    eprintln!(
+                        "Site build failed with error: {}",
+                        String::from_utf8_lossy(&output.stderr)
+                    );
+                }
+                return Ok(());
+            }
+            "--run-pinner" | "-rp" => {
+                std::env::set_current_dir("../wal-pinner").expect("Failed to change directory.");
+
+                let output = std::process::Command::new("npm")
+                    .arg("install")
+                    .output()
+                    .expect("Failed to execute npm install command.");
+
+                if output.status.success() {
+                    println!("npm install completed successfully.");
+                } else {
+                    eprintln!(
+                        "npm install failed with error: {}",
+                        String::from_utf8_lossy(&output.stderr)
+                    );
+                }
+
+                println!("Starting pinner in the background...");
+
+                std::process::Command::new("npx")
+                    .arg("ts-node")
+                    .arg("../wal-pinner/src/index.ts")
+                    .spawn()
+                    .expect("Failed to start pinner process in the background.");
                 return Ok(());
             }
             _ => {
@@ -230,7 +273,7 @@ async fn run_app(
                         }
                     }
                     _ => {}
-                }
+                },
             }
         }
     }
