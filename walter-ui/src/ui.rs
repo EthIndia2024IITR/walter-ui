@@ -65,7 +65,17 @@ pub fn render_ui(frame: &mut Frame, app: &mut App) {
 
             render_migrator(frame, app, chunks[1]);
         }
-        _ => {}
+        CurrentScreen::SharderAndEpochExtender => {
+            frame.render_widget(
+                Paragraph::new("").block(
+                    Block::bordered()
+                        .title("~ [ Sharder & Epoch Extender ] ~")
+                        .title_alignment(Alignment::Center),
+                ),
+                frame.area(),
+            );
+            render_updater(frame, app, chunks[1]);
+        }
     }
 
     if app.should_quit {
@@ -322,6 +332,22 @@ fn render_migrator(frame: &mut Frame, app: &mut App, area: Rect) {
     render_footer(frame, app, chunks[1]);
 }
 
+fn render_sharder_and_extender(frame: &mut Frame, app: &mut App, area: Rect) {
+    let chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([Constraint::Percentage(90), Constraint::Percentage(10)])
+        .split(area);
+
+    let screen = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([Constraint::Percentage(90), Constraint::Percentage(10)])
+        .split(chunks[0]);
+
+    
+
+    render_footer(frame, app, chunks[1]);
+}
+
 fn render_exit_popup(frame: &mut Frame, area: Rect) {
     let outer_rect = centered_rect(42, 32, area);
     let inner_rect = centered_rect(40, 30, area);
@@ -354,10 +380,10 @@ fn render_footer(frame: &mut Frame, app: &mut App, area: Rect) {
 
     match app.current_screen {
         CurrentScreen::Splash => content = "Press 'Enter' to continue",
-        CurrentScreen::Dashboard => content = "[2] Updater | [3] Uploader | [Q]uit",
-        CurrentScreen::Uploader => content = "[1] Dashboard | [2] Updater | [Enter] Upload | [Q]uit",
-        CurrentScreen::Migrator => content = "[1] Dashboard | [2] Uploader | [M]igrate | [Q]uit",
-        _ => {}
+        CurrentScreen::Dashboard => content = "[2] Uploader | [3] Migrate | [4] Sharder & Epoch Extender | [Q]uit",
+        CurrentScreen::Uploader => content = "[1] Dashboard | [Enter] Upload | [3] Migrator | [4] Sharder & Epoch Extender | [Q]uit",
+        CurrentScreen::Migrator => content = "[1] Dashboard | [2] Uploader | [M]igrate | [4] Sharder & Epoch Extender | [Q]uit",
+        CurrentScreen::SharderAndEpochExtender => content = "[1] Dashboard | [2] Uploader | [3] Migrator | [4] Sharder & Epoch Extender | [Q]uit",
     }
 
     let instructions = Paragraph::new(Text::styled(content, Style::default().fg(Color::Green)))
