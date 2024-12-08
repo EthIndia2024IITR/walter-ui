@@ -21,7 +21,7 @@ pub fn main() -> anyhow::Result<()> {
     let mut rl = Editor::<(), _>::new()?;
 
     println!(
-        "\x1b[1;34mWalruSQL - SQLite on Walrus with rollbacks\x1b[0m\n\x1b[1;32mType 'help' for available commands\x1b[0m\n\x1b[1;31mType 'exit' or 'quit' to close the shell\x1b[0m"
+        "\x1b[1;34mWalruSQL - SQLite on Walrus with rollbacking\x1b[0m\n\x1b[1;32mType 'help' for available commands\x1b[0m\n\x1b[1;31mType 'exit' or 'quit' to close the shell\x1b[0m"
     );
 
     loop {
@@ -176,4 +176,12 @@ fn execute_query(conn: &Connection, query: &str, blob_id_prev: &mut String) -> R
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    main!();
 }

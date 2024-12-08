@@ -153,7 +153,7 @@ mod tests {
 
     #[test]
     fn test_download_and_extract_id() {
-        let blob_id = "rrVM1AljwAyC-ptfDZ2XXqKCszZzMDH6jICwrlpAVSo".to_string();
+        let blob_id = "NKzOvrC2ksXDwOqTdk5NdqZ5aglAW5_dCS4GtbEChZ0".to_string();
         let file_location = "/tmp/test_file".to_string();
         let content = "test_content".to_string();
         let mut file = File::create(&file_location).expect("Unable to create file");
@@ -166,7 +166,7 @@ mod tests {
     #[test]
     fn test_append_id_and_upload() {
         let file_location = "/tmp/test_file".to_string();
-        let blob_id = "Xaih8gqlyGPC4LZhP5Co3KmJsJ1DWWTyyd-pdY9jYx0".to_string();
+        let blob_id = "Saih8gqlyGPC4LZhP5Co3KmJsJ1DWWTyyd-pdY9jYx0".to_string();
         let content = "test_content".to_string();
         let mut file = File::create(&file_location).expect("Unable to create file");
         file.write_all(content.as_bytes()).expect("Unable to write to file");
