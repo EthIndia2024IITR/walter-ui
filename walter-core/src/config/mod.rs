@@ -64,7 +64,7 @@ impl WalterConfig {
             let default_config = WalterConfig {
                 default_file_download_dir: "~/.walter/downloads".to_string(),
                 default_epochs: 10,
-                default_shard_size: 1024, // 1MB
+                default_shard_size: 1024 * 1024 * 10,
                 renew_epoch_threshold: 2,
                 default_renewal_value: 10,
                 files: HashMap::new(),

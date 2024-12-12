@@ -1,16 +1,38 @@
 # Variables  
-SUI_VERSION := v1.38.3
-SUI_URL:= https://github.com/MystenLabs/sui/releases/download/mainnet-$(SUI_VERSION)/sui-mainnet-$(SUI_VERSION)-ubuntu-x86_64.tgz
+SYSTEM := ubuntu-x86_64
+
+OS_NAME := $(shell uname -s)
+CPU_ARCH := $(shell uname -m)
+# Map OS and CPU architecture to SYSTEM variable
+ifeq ($(OS_NAME),Linux)
+	ifeq ($(CPU_ARCH),x86_64)
+		SYSTEM := ubuntu-x86_64
+	else
+		SYSTEM := ubuntu-x86_64-generic
+	endif
+else ifeq ($(OS_NAME),Darwin)
+	ifeq ($(CPU_ARCH),arm64)
+		SYSTEM := macos-arm64
+	else ifeq ($(CPU_ARCH),x86_64)
+		SYSTEM := macos-x86_64
+	endif
+else ifeq ($(OS_NAME),Windows_NT)
+	SYSTEM := windows-x86_64.exe
+else
+	$(error "Unsupported OS: $(OS_NAME)")
+endif
+
+SUI_URL := $(shell curl -s https://api.github.com/repos/MystenLabs/sui/releases/latest | grep "browser_download_url.*$(SYSTEM).tgz" | cut -d '"' -f 4)
 SUI_DIR := $(HOME)/sui
 WALRUS_REPO := https://github.com/walrus-storage/walrus.git  
 SITE_BUILDER_REPO := https://github.com/walrus-storage/walrus-site-builder.git  
-SYSTEM := ubuntu-x86_64
 
 # Default target  
-all: setup-sui setup-walrus setup-site-builder  
+all: setup-sui setup-walrus setup-site-builder get-balance
 
 # Target to set up Sui  
 setup-sui:  
+	@echo "Downloading Sui binaries from $(SUI_URL)"
 	@echo "Setting up Sui..." 
 	@if [ ! -d "$(SUI_DIR)" ]; then \
 		echo "Downloading Sui binaries..."; \
@@ -66,26 +88,21 @@ setup-site-builder:
 	@echo "Walrus site-builder setup complete."
 
 
-get_balance:
-	sui client faucet
-	echo "waiting for sui..."
-	sleep 10
-	walrus 
+get-balance:
+	# sui client faucet
+	# @echo "waiting for sui..."
+	# sleep 10
+	walrus get-wal
 
-# # Clean up all downloaded and cloned files  
-# clean:  
-#   @echo "Cleaning up..."  
-#   rm -rf $(SUI_DIR)  
-#   rm -rf walrus  
-#   rm -rf walrus-site-builder  
-#   @echo "Cleanup complete."  
-
-# # Help target  
-# help:  
-  # @echo "Available targets:"  
-  # @echo "  all                 - Set up Sui, Walrus, and Walrus Site-Builder"  
-  # @echo "  setup-sui           - Set up Sui binaries"  
-  # @echo "  setup-walrus        - Clone and set up Walrus repository"  
-  # @echo "  setup-site-builder  - Clone and set up Walrus Site-Builder repository"  
-  # @echo "  clean               - Remove all downloaded and cloned files"  
-  # @echo "  help                - Show this help message"  
+clean:
+	clean:
+		@echo "Cleaning up..."
+		@echo "Removing Sui directory..."
+		rm -rf $(SUI_DIR)
+		@echo "Removing Walrus binary..."
+		sudo rm -f /usr/local/bin/walrus
+		@echo "Removing Walrus config..."
+		rm -rf ~/.config/walrus
+		@echo "Removing Walrus Sites directory..."
+		rm -rf $(HOME)/walrus-sites
+		@echo "Cleanup complete."
