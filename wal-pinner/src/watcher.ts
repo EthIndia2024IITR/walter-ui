@@ -3,7 +3,7 @@ import { Config, loadConfig } from "./config";
 import path from "path";
 
 export function watchConfig(onConfigChange: (newConfig: Config) => void): void {
-  const configPath = path.resolve("~/.walter/config.json");
+  const configPath = path.resolve("/home/phoenix/.walter/config.json");
 
   chokidar.watch(configPath).on("change", () => {
     console.log("Config file changed. Reloading...");

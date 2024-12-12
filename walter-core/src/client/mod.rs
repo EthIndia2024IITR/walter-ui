@@ -48,7 +48,7 @@ impl WalrusClient {
         }
 
         self.config.add_file(file_path, to_encrypt, blobs);
-
+        self.config.save_config_file();
         Ok(true)
     }
 

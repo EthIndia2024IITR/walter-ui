@@ -18,7 +18,7 @@ export interface Config {
 
 // Load configuration from config.json
 export function loadConfig(): Config {
-  const configPath = path.resolve("~/.walter/config.json");
+  const configPath = path.resolve("/home/phoenix/.walter/config.json");
   console.log("Loading config from:", configPath);
   const configData = fs.readFileSync(configPath, "utf-8");
   return JSON.parse(configData) as Config;
