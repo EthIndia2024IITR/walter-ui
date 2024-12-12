@@ -24,7 +24,7 @@ setup-sui:
 	@echo "Adding Sui to PATH..." 
 	@if ! grep -q 'export PATH=.*$(SUI_DIR)' ~/.zshrc; then \
 		echo "Adding to path..."; \
-		echo 'export PATH=\$$PATH:$(SUI_DIR)' >> ~/.zshrc; \
+		echo 'export PATH=$$PATH:$(SUI_DIR)' >> ~/.zshrc; \
 		. ~/.zshrc; \
 	fi 
 	@echo "Sui setup complete."
@@ -39,12 +39,13 @@ setup-walrus:
 	else \
 		echo "Walrus is already set up."; \
 	fi
-	@echo "Adding Walrus to PATH..."
-	@if ! grep -q 'export PATH=.*$(HOME)/walrus' ~/.zshrc; then \
-		echo 'export PATH=$$PATH:$(HOME)/walrus' >> ~/.zshrc; \
-		. ~/.zshrc; \
-	fi
+	@echo "Adding Walrus to /usr/local/bin"
+	sudo mv ~/walrus /usr/local/bin/walrus
+
 	@echo "Walrus setup complete."
+	@echo "Downloading walrus config..."
+	curl https://docs.blob.store/client_config.yaml --create-dirs -o ~/.config/walrus/client_config.yaml
+
 
 # Target to set up Walrus Site-Builder  
 setup-site-builder:
@@ -63,6 +64,13 @@ setup-site-builder:
 		. ~/.zshrc; \
 	fi
 	@echo "Walrus site-builder setup complete."
+
+
+get_balance:
+	sui client faucet
+	echo "waiting for sui..."
+	sleep 10
+	walrus 
 
 # # Clean up all downloaded and cloned files  
 # clean:  

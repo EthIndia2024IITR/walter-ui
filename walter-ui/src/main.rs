@@ -46,6 +46,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 println!("\x1b[1;32mVersion:\x1b[0m 0.1.0");
             }
             "--setup" | "-s" => {
+                std::env::set_current_dir("..").expect("Failed to change directory.");
                 println!("Running setup...");
                 let output = std::process::Command::new("make")
                     .arg("all")
