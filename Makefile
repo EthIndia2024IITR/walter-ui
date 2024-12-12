@@ -23,15 +23,41 @@ else
 endif
 
 SUI_URL := $(shell curl -s https://api.github.com/repos/MystenLabs/sui/releases/latest | grep "browser_download_url.*$(SYSTEM).tgz" | cut -d '"' -f 4)
+SYSTEM := ubuntu-x86_64
+
+OS_NAME := $(shell uname -s)
+CPU_ARCH := $(shell uname -m)
+# Map OS and CPU architecture to SYSTEM variable
+ifeq ($(OS_NAME),Linux)
+	ifeq ($(CPU_ARCH),x86_64)
+		SYSTEM := ubuntu-x86_64
+	else
+		SYSTEM := ubuntu-x86_64-generic
+	endif
+else ifeq ($(OS_NAME),Darwin)
+	ifeq ($(CPU_ARCH),arm64)
+		SYSTEM := macos-arm64
+	else ifeq ($(CPU_ARCH),x86_64)
+		SYSTEM := macos-x86_64
+	endif
+else ifeq ($(OS_NAME),Windows_NT)
+	SYSTEM := windows-x86_64.exe
+else
+	$(error "Unsupported OS: $(OS_NAME)")
+endif
+
+SUI_URL := $(shell curl -s https://api.github.com/repos/MystenLabs/sui/releases/latest | grep "browser_download_url.*$(SYSTEM).tgz" | cut -d '"' -f 4)
 SUI_DIR := $(HOME)/sui
 WALRUS_REPO := https://github.com/walrus-storage/walrus.git  
 SITE_BUILDER_REPO := https://github.com/walrus-storage/walrus-site-builder.git  
 
 # Default target  
 all: setup-sui setup-walrus setup-site-builder get-balance
+all: setup-sui setup-walrus setup-site-builder get-balance
 
 # Target to set up Sui  
 setup-sui:  
+	@echo "Downloading Sui binaries from $(SUI_URL)"
 	@echo "Downloading Sui binaries from $(SUI_URL)"
 	@echo "Setting up Sui..." 
 	@if [ ! -d "$(SUI_DIR)" ]; then \
